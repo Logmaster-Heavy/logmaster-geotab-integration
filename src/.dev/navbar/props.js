@@ -13,8 +13,12 @@ const props = [
          hasSubmenu: true,
          submenuItems: [
                 {
-                    name: 'logmasterEwd2',
+                    name: config.items[0].url,
                     labelText: config.items[0].menuName,
+                },
+                {
+                    name: config.items[1].url,
+                    labelText: config.items[1].menuName,
                 }
             ]
     },

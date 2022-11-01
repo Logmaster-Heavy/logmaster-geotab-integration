@@ -1,18 +1,25 @@
 /**
  * @returns {{initialize: Function, focus: Function, blur: Function, startup; Function, shutdown: Function}}
  */
-geotab.addin.logmasterEwd2 = function () {
+geotab.addin.logmasterEwd2 = function (api, state) {
   'use strict';
 
 
   // the root container
-  var elAddin = document.getElementById('logmasterEwd2');
+  // var elAddin = document.getElementById('logmasterEwd2');
+  let mainLogmasterURI = document.getElementById('mainLogmasterURI').value;
 
 
   const ajax = new XMLHttpRequest();
 
-  let localBaseLogmasterURL = 'http://localhost:8080';
-  let localBaseAPIURL = 'http://localhost:3005';
+  let devBaseLogmasterURL = 'http://localhost:8080';
+  let devBaseAPIURL = 'http://localhost:3005';
+
+  // let prodBaseLogmasterURL = 'https://logmaster.au';
+  // let prodBaseLogmasterAPIURL = 'https://prod-api.logmaster.au'
+
+  let prodBaseLogmasterURL = 'https://logmaster-aus-sandbox-z626q6mhla-ts.a.run.app';
+  let prodBaseLogmasterAPIURL = 'https://logmaster-portal-navigation-z626q6mhla-ts.a.run.app'
 
   let mainParentUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
   let mainParentAccessToken;
@@ -21,17 +28,27 @@ geotab.addin.logmasterEwd2 = function () {
   let loggedInUserVehicles;
 
   let finishCallback;
-  let loginUsingUID = function (uid, callBackAfterLogin) {
-    ajax.onload = function () {
-      mainParentAccessToken = ajax.response.data.accessToken;
-      console.log('mainParentAccessToken fetched');
-      callBackAfterLogin();
-    };
+
+  let getBaseLogmasterURL = function () {
+    if (global.environment === 'dev') {
+      return devBaseLogmasterURL;
+    }
+    return prodBaseLogmasterURL;
+  };
+  let getBaseLogmasterAPIURL = function () {
+    if (global.environment === 'dev') {
+      return devBaseAPIURL;
+    }
+    return prodBaseLogmasterAPIURL;
+  };
+  let displayLogmasterUILastStep = function () {
+    console.log('baseLogmasterURL + mainLogmasterURI', getBaseLogmasterURL() + mainLogmasterURI);
+    document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI;
+    finishCallback();
+  };
+  let setAjaxTypeAfterOpen = function () {
     ajax.responseType = 'json';
-    ajax.open('POST', localBaseAPIURL + '/auth/signin-via-token');
-    ajax.send({
-      uid: uid
-    });
+    ajax.setRequestHeader('Content-type', 'application/json; charset=utf-8');
   };
   let createBusinessFromGeotab = function () {
     let businessName = loggedInUser.firstName + ' ' + loggedInUser.lastName;
@@ -39,7 +56,7 @@ geotab.addin.logmasterEwd2 = function () {
       'persona': {
         'businessName': businessName,
         'tradingName': businessName,
-        'abn': 'string',
+        'abn': '',
         'businessAddress': loggedInUser.authorityAddress,
         'contactUserName': loggedInUser.name,
         'contactEmail': loggedInUser.name,
@@ -47,25 +64,53 @@ geotab.addin.logmasterEwd2 = function () {
       },
       'isActive': true,
       'isExternal': true,
-      'firebaseBusinessId': 'string',
       'demoOption': 'NO_DEMO'
     };
     console.log('business-body', businessDetails);
     ajax.onload = function () {
-      console.log('login status:', ajax.status);
-      console.log('login response', ajax.response);
       console.log('business created');
-      console.log('localBaseLogmasterURL + mainLogmasterURI', localBaseLogmasterURL + mainLogmasterURI);
-      document.getElementById('logmaster-main-iframe').src = localBaseLogmasterURL + mainLogmasterURI;
-      finishCallback();
+      displayLogmasterUILastStep();
     };
-    ajax.responseType = 'json';
-    ajax.open('POST', baseAPIURL + '/business');
+    ajax.onerror = function () {
+      // handle non-HTTP error (e.g. network down)
+      console.log('non http error', ajax.response);
+      displayLogmasterUILastStep();
+    };
+    ajax.open('POST', getBaseLogmasterAPIURL() + '/business');
+    setAjaxTypeAfterOpen();
     ajax.setRequestHeader('Authorization', 'Bearer ' + mainParentAccessToken);
     ajax.send();
   };
+  let loginUsingUID = function (uid, callBackAfterLogin) {
+    console.log('start logging in partner');
+    ajax.onload = function () {
+      mainParentAccessToken = ajax.response.data.accessToken;
+      console.log('mainParentAccessToken fetched');
+      callBackAfterLogin();
+    };
+    ajax.onerror = function () {
+      console.log('error', ajax.response);
+    };
+    ajax.open('POST', getBaseLogmasterAPIURL() + '/auth/signin-via-token');
+    setAjaxTypeAfterOpen();
+    ajax.send(JSON.stringify({
+      uid: uid
+    }));
+  };
   let syncLoggedInUserAndVehiclesToLogmaster = function () {
-    loginUsingUID(mainParentUID,createBusinessFromGeotab);
+    loginUsingUID(mainParentUID, createBusinessFromGeotab);
+  };
+  let getVehicles = function (groupIds) {
+    api.call('Get', {
+      typeName: 'Device',
+      search: {
+        groups: groupIds
+      }
+    }, function (fetchedVehicles) {
+      console.log('fetchedVehicles', fetchedVehicles);
+      loggedInUserVehicles = fetchedVehicles;
+      syncLoggedInUserAndVehiclesToLogmaster();
+    });
   };
   let getGroupOfLoggedInUser = function (groupId) {
     api.call('Get', {
@@ -87,24 +132,12 @@ geotab.addin.logmasterEwd2 = function () {
           });
           getVehicles(childrenGroups);
         } else {
-          finishCallback();
+          displayLogmasterUILastStep();
         }
       } else {
         console.log('no groups found');
-        finishCallback();
+        displayLogmasterUILastStep();
       }
-    });
-  };
-  let getVehicles = function (groupIds) {
-    api.call('Get', {
-      typeName: 'Device',
-      search: {
-        groups: groupIds
-      }
-    }, function (fetchedVehicles) {
-      console.log('fetchedVehicles', fetchedVehicles);
-      loggedInUserVehicles = fetchedVehicles;
-      syncLoggedInUserAndVehiclesToLogmaster();
     });
   };
   let getLoggedInUser = function () {
@@ -119,7 +152,7 @@ geotab.addin.logmasterEwd2 = function () {
         console.log('result from getSession', result);
         if (result.length === 0) {
           console.log('Unable to find currently logged on user.');
-          finishCallback();
+          displayLogmasterUILastStep();
         } else {
           loggedInUser = result[0];
           console.log('logged in user', loggedInUser);
@@ -127,7 +160,7 @@ geotab.addin.logmasterEwd2 = function () {
             getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
           } else {
             console.log('logged in user does not belong to a group');
-            finishCallback();
+            displayLogmasterUILastStep();
           }
         }
       });
@@ -148,10 +181,10 @@ geotab.addin.logmasterEwd2 = function () {
      */
     initialize: function (freshApi, freshState, initializeCallback) {
       // Loading translations if available
-      if (freshState.translate) {
-        freshState.translate(elAddin || '');
-      }
-
+      // if (freshState.translate) {
+      //   freshState.translate(elAddin || '');
+      // }
+      console.log('global.state', global.environment);
       // MUST call initializeCallback when done any setup
       finishCallback = initializeCallback;
       getLoggedInUser();
@@ -169,14 +202,18 @@ geotab.addin.logmasterEwd2 = function () {
      * @param {object} freshState - The page state object allows access to URL, page navigation and global group filter.
     */
     focus: function (freshApi, freshState) {
-
+      let currentSRC = document.getElementById('logmaster-main-iframe').src;
+      if(currentSRC != mainLogmasterURI){
+        console.log('currentSRC updated to ', mainLogmasterURI);
+        document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI;
+      }
       // getting the current user to display in the UI
-      freshApi.getSession(session => {
-        elAddin.querySelector('#logmasterEwd2-user').textContent = session.userName;
-      });
+      // freshApi.getSession(session => {
+      //   elAddin.querySelector('#logmasterEwd2-user').textContent = session.userName;
+      // });
 
 
-      elAddin.className = '';
+      // elAddin.className = '';
       // show main content
 
     },
@@ -191,7 +228,7 @@ geotab.addin.logmasterEwd2 = function () {
     */
     blur: function () {
       // hide main content
-      elAddin.className += ' hidden';
+      // elAddin.className += ' hidden';
     }
   };
 };

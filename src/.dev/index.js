@@ -26,6 +26,7 @@ global.geotab = {
 
 require('../app/scripts/main');
 
+global.environment = 'dev';
 // Importing dev-specific packages
 import './rison';
 import './login/loginTemplate.js';
@@ -77,12 +78,11 @@ require('./ToggleHandler');
 
 
 // Setting up mock display panel
-let mainPanel = document.querySelector('#app');
-mainPanel.id = 'checkmateContent';
-mainPanel.className = 'centerPane';
-mainPanel.style.top = '40px';
-mainPanel.style.left = '250px';
-
+// let mainPanel = document.querySelector('#app');
+// mainPanel.id = 'checkmateContent';
+// mainPanel.className = 'centerPane';
+// mainPanel.style.top = '40px';
+// mainPanel.style.left = '250px';
 
 // Setup complete
 /* Addin Logic */
