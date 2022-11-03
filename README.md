@@ -47,23 +47,23 @@ Login to https://my1623.geotab.com/ using one of the Admin credentials above.
 
 On the side menu, navigate to Administration -> System -> System Settings, then open the 'Add-Ins' Tab
 
-(images/readme/geotab-admin-settings.png)
+![geotab-admin-settings.png](images/readme/geotab-admin-settings.png)
 
 Click on the existing Add-in to update
 
-(images/readme/geotab-existing-add-in.png)
+![geotab-existing-add-in.png](images/readme/geotab-existing-add-in.png)
 
 On the 'Configuration' Tab, Copy the contents from 'dist/config.json' file into the 'Add-In configuration file' textarea
 
-(images/readme/geotab-config.png)
+![geotab-config.png](images/readme/geotab-config.png)
 
 On the 'Files' Tab, click on 'Add' button, then upload all the 'dist' folder
 
-(images/readme/geotab-add-files.png)
+![geotab-add-files.png](images/readme/geotab-add-files.png)
 
 Click 'Ok' button, then click on 'Save' on the upper left corner
 
-(images/redme/geotab-save.png)
+![geotab-save.png](images/redme/geotab-save.png)
 
 If all went well, you should be able to see the changes on geotab based on the 'dist/config.json'
 
