@@ -18,13 +18,13 @@ const ESLintPlugin = require('eslint-webpack-plugin');
  */
 const transform = function (content, path) {
     let config = JSON.parse(content);
-    let host = config.dev.dist.host;
-    let len = config.items.length;
-    // Appending the host to all item's url and icon
-    for(let i=0;i<len;i++){
-        config.items[i].url = host + config.items[i].url;
-        config.items[i].icon = host + config.items[i].icon; 
-    }
+    // let host = config.dev.dist.host;
+    // let len = config.items.length;
+    // // Appending the host to all item's url and icon
+    // for(let i=0;i<len;i++){
+    //     config.items[i].url = host + config.items[i].url;
+    //     config.items[i].icon = host + config.items[i].icon; 
+    // }
 
     delete config['dev'];
     let response = JSON.stringify(config, null, 2);

@@ -2,19 +2,63 @@
   "name": "Logmaster EWD2",
   "supportEmail": "admin@logmaster.com.au",
   "version": "0.0.1",
-  "items": [{
-    "url": "logmasterEwd2.html",
-    "path": "ActivityLink/",
-    "menuName": {
-      "en": "Drivers"
+  "items": [
+    {
+      "path": "ActivityLink",
+      "menuId": "BusinessDriverPage",
+      "url": "dist/businessDriverPage.html",
+      "menuName": {
+        "en": "Drivers"
+      },
+      "svgIcon": "dist/images/icon.svg"
     },
-    "icon": "images/icon.svg"
-  }],
-  
+    {
+      "path": "ActivityLink",
+      "menuId": "BusinessManualEventsPage",
+      "url": "dist/manualEventsPage.html",
+      "menuName": {
+        "en": "Manual Events"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "ActivityLink",
+      "menuId": "BusinessVehiclesPage",
+      "url": "dist/vehiclesPage.html",
+      "menuName": {
+        "en": "Vehicles"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "ActivityLink",
+      "menuId": "BusinessReportsPage",
+      "menuName": {
+        "en": "Reports"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessReportsPage/",
+      "url": "dist/reportNHVRCompliancePage.html",
+      "menuName": {
+        "en": "NHVR Compliance"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessReportsPage/",
+      "url": "dist/reportWACompliancePage.html",
+      "menuName": {
+        "en": "WA Compliance"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    }
+  ],
   "dev": {
     "root": "logmasterEwd2",
     "dist": {
-      "host": "http://localhost:4030/"
+      "host": ""
     }
   }
 }
