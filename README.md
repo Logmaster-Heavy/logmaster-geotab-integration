@@ -43,7 +43,7 @@ npm run build
 
 Login to https://my1623.geotab.com/ using one of the Admin credentials above.
 
-[geotab-login.png](images/readme/geotab-login.png)
+![geotab-login.png](images/readme/geotab-login.png)
 
 On the side menu, navigate to Administration -> System -> System Settings, then open the 'Add-Ins' Tab
 
