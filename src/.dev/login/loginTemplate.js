@@ -26,6 +26,7 @@ let loginExample = `
 
     #app {
         width: initial;
+        heigth: 100%;
     }
 
     #hiddenMenu {
