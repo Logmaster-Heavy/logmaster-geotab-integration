@@ -1,16 +1,32 @@
+import { ajaxInit } from './ajax/ajax-helper';
+import { METHODS } from './constants/method-constants';
+
+
 /**
  * @returns {{initialize: Function, focus: Function, blur: Function, startup; Function, shutdown: Function}}
  */
 geotab.addin.logmasterEwd2 = function (api, state) {
   'use strict';
 
-
   // the root container
   // var elAddin = document.getElementById('logmasterEwd2');
   let mainLogmasterURI = document.getElementById('mainLogmasterURI').value;
 
+  //change this when deploying to staging/prod
+  let mainParentUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
+  let contractDurationMongoId = '62bbcada9b8c495a93347323';
+  let billingPeriodMongoId = '62bbcada9b8c495a93347319';
+  let mainParentAccessToken;
+  let mainPartnerDetails;
+  let mainBusinessContractDetails = {
+    'billingPeriodId': billingPeriodMongoId,
+    'businessMongoId': '',
+    'businessModulesDto': [],
+    'contractDurationId': contractDurationMongoId,
+    'contractDurationYears': 0,
+    'contractAccepted': true
+  };
 
-  const ajax = new XMLHttpRequest();
 
   let devBaseLogmasterURL = 'http://localhost:8080';
   let devBaseAPIURL = 'http://localhost:3005';
@@ -21,13 +37,17 @@ geotab.addin.logmasterEwd2 = function (api, state) {
   let prodBaseLogmasterURL = 'https://logmaster-aus-sandbox-z626q6mhla-ts.a.run.app';
   let prodBaseLogmasterAPIURL = 'https://logmaster-portal-navigation-z626q6mhla-ts.a.run.app'
 
-  let mainParentUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
-  let mainParentAccessToken;
 
   let loggedInUser;
   let loggedInUserVehicles;
 
   let finishCallback;
+
+  let defaultPassword = 'Password1!';
+
+  let loggedInBusiness;
+  
+  let businessUID;
 
   let getBaseLogmasterURL = function () {
     if (global.environment === 'dev') {
@@ -41,64 +61,146 @@ geotab.addin.logmasterEwd2 = function (api, state) {
     }
     return prodBaseLogmasterAPIURL;
   };
+  let getBusinessUIDFromWebProfile = function () {
+
+  };
   let displayLogmasterUILastStep = function () {
     console.log('baseLogmasterURL + mainLogmasterURI', getBaseLogmasterURL() + mainLogmasterURI);
     document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI;
     finishCallback();
   };
-  let setAjaxTypeAfterOpen = function () {
-    ajax.responseType = 'json';
-    ajax.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+  let createBusinesPassword = function () {
+    let passwordPayload = {
+      'password': defaultPassword,
+      'confirmPassword': defaultPassword
+    };
+    ajaxInit(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business/create-password/' + loggedInBusiness._id,
+      function () {
+        //onload
+        console.log('password created');
+        checkBusinessEmailAlreadyExists();
+      },
+      function () {
+        console.log('error create password', this.response);
+        displayLogmasterUILastStep();
+      })
+      .send(JSON.stringify(passwordPayload));
+  };
+  let checkBusinessEmailAlreadyExists = function () {
+    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email',
+      function () {
+        //on load
+        console.log('checking business existence', this.response);
+        if(this.response.success){
+          loggedInBusiness = this.response.data;
+          console.log('business already created', loggedInBusiness);
+          /**
+           * Set cookie business.uid 
+           * name of cookie: geotab-login-uid
+           * sa portal-v2 page, kukunin yung cookie na yun, para auto login
+           * tapos redirect sa bagong page ex: Business -> Driver page
+           * yung laman ng Business driver page are Drivers under sa nakalogin na user
+           * update Readme
+           */
+          displayLogmasterUILastStep();
+        } else {
+          createBusinessFromGeotab();
+        }
+      }, 
+      function () {
+
+      },
+      mainParentAccessToken)
+      .send(JSON.stringify({
+        emailAddress: loggedInUser.name
+      }));
   };
   let createBusinessFromGeotab = function () {
     let businessName = loggedInUser.firstName + ' ' + loggedInUser.lastName;
     let businessDetails = {
-      'persona': {
-        'businessName': businessName,
-        'tradingName': businessName,
-        'abn': '',
-        'businessAddress': loggedInUser.authorityAddress,
-        'contactUserName': loggedInUser.name,
-        'contactEmail': loggedInUser.name,
-        'contactPhoneNumber': loggedInUser.phoneNumber
+      persona: {
+        businessName: businessName.trim(),
+        abn: '12341234',
+        businessAddress: loggedInUser.authorityAddress.trim() || 'Geotab Business Address',
+        contactUserName: loggedInUser.name.trim(),
+        contactEmail: loggedInUser.name.trim(),
+        contactPhoneNumber: loggedInUser.phoneNumber.trim()
       },
-      'isActive': true,
-      'isExternal': true,
-      'demoOption': 'NO_DEMO'
+      supportEmail: loggedInUser.name.trim(),
+      isActive: true,
+      demoOption: 'NO_DEMO',
+      geoTabId: loggedInUser.id.trim()
     };
     console.log('business-body', businessDetails);
-    ajax.onload = function () {
-      console.log('business created');
-      displayLogmasterUILastStep();
+    let onLoadFunc = function () {
+      if(this.status == 201){
+        console.log('business created');
+        loggedInBusiness = this.response.data;
+        createBusinesPassword();
+      } else{
+        console.log('error in business create', this.response);
+        displayLogmasterUILastStep();
+      }
     };
-    ajax.onerror = function () {
+    let onErrorFunc = function () {
       // handle non-HTTP error (e.g. network down)
-      console.log('non http error', ajax.response);
+      console.log('non http error', this.response);
       displayLogmasterUILastStep();
     };
-    ajax.open('POST', getBaseLogmasterAPIURL() + '/business');
-    setAjaxTypeAfterOpen();
-    ajax.setRequestHeader('Authorization', 'Bearer ' + mainParentAccessToken);
-    ajax.send();
+    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/business', 
+      onLoadFunc, 
+      onErrorFunc, 
+      mainParentAccessToken)
+      .send(JSON.stringify(businessDetails).trim());
+  };
+  let getStandardPricingDetails = function () {
+    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/standard-pricing/find-all-active-rrp-to-business/' + mainPartnerDetails._id, 
+      function () {
+        //on load
+        let standardPricingFetched = this.response.data;
+        console.log('standard-pricing fetched', standardPricingFetched);
+      }, 
+      function () {
+
+      },
+      mainParentAccessToken)
+      .send();
+  };
+  let getPartnerDetails = function () {
+    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/partner/find-one-by-uid/' + mainParentUID, 
+      function () {
+        // onload
+        mainPartnerDetails = this.response.data;
+        console.log('parnter details fetched', mainPartnerDetails);
+        checkBusinessEmailAlreadyExists();
+      },
+      function () {
+        console.log('error fetching partner', this.response);
+        displayLogmasterUILastStep();
+      },
+      mainParentAccessToken)
+      .send();
   };
   let loginUsingUID = function (uid, callBackAfterLogin) {
     console.log('start logging in partner');
-    ajax.onload = function () {
-      mainParentAccessToken = ajax.response.data.accessToken;
+    let onLoadFunc = function () {
+      mainParentAccessToken = this.response.data.accessToken;
       console.log('mainParentAccessToken fetched');
       callBackAfterLogin();
     };
-    ajax.onerror = function () {
-      console.log('error', ajax.response);
+    let onErrorFunc = function () {
+      console.log('error signing in partner', this.response);
+      displayLogmasterUILastStep();
     };
-    ajax.open('POST', getBaseLogmasterAPIURL() + '/auth/signin-via-token');
-    setAjaxTypeAfterOpen();
-    ajax.send(JSON.stringify({
-      uid: uid
-    }));
+    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/auth/signin-via-token',
+      onLoadFunc,
+      onErrorFunc)
+      .send(JSON.stringify({
+        uid: uid
+      }));
   };
   let syncLoggedInUserAndVehiclesToLogmaster = function () {
-    loginUsingUID(mainParentUID, createBusinessFromGeotab);
+    loginUsingUID(mainParentUID, getPartnerDetails);
   };
   let getVehicles = function (groupIds) {
     api.call('Get', {
