@@ -57,7 +57,7 @@ On the 'Configuration' Tab, Copy the contents from 'dist/config.json' file into 
 
 ![geotab-config.png](images/readme/geotab-config.png)
 
-On the 'Files' Tab, click on 'Add' button, then upload all the 'dist' folder
+On the 'Files' Tab, click on 'Add' button, then upload only the 'dist' folder
 
 ![geotab-add-files.png](images/readme/geotab-add-files.png)
 
