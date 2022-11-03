@@ -63,7 +63,7 @@ On the 'Files' Tab, click on 'Add' button, then upload only the 'dist' folder
 
 Click 'Ok' button, then click on 'Save' on the upper left corner
 
-![geotab-save.png](images/redme/geotab-save.png)
+![geotab-save.png](images/readme/geotab-save.png)
 
 If all went well, you should be able to see the changes on geotab based on the 'dist/config.json'
 
