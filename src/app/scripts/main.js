@@ -4,6 +4,7 @@ import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
 import { api, finishCallback, loggedInUser, loggedInUserVehicles, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
 import { displayLogmasterUILastStep } from './service/ui/ui-service';
+import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 
 
 /**
@@ -34,7 +35,12 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         // onload
         setMainPartnerDetails(this.response.data);
         console.log('parnter details fetched', mainPartnerDetails);
-        checkBusinessEmailAlreadyExists();
+        if(loggedInUser.isDriver){
+          checkDriverEmailAlreadyExists();
+        } else{
+          //business
+          checkBusinessEmailAlreadyExists();
+        }
       },
       function () {
         console.log('error fetching partner', this.response);

@@ -42,18 +42,6 @@ export function setMainPartnerDetails (mainPartnerDetailsValue) {
   mainPartnerDetails = mainPartnerDetailsValue;
 }
 
-export let mainBusinessContractDetails = {
-  billingPeriodId: billingPeriodMongoId,
-  businessMongoId: '',
-  businessModulesDto: [],
-  contractDurationId: contractDurationMongoId,
-  contractDurationYears: 0,
-  contractAccepted: true
-};
-export function setMainBusinessContractDetails(mainBusinessContractDetailsValue) {
-  mainBusinessContractDetails = mainBusinessContractDetailsValue;
-}
-
 export let loggedInUserVehicles;
 export function setLoggedInUserVehicles (loggedInUserVehiclesValue) {
   loggedInUserVehicles = loggedInUserVehiclesValue;
@@ -72,4 +60,16 @@ export function setLoggedInBusiness (loggedInBusinessValue) {
 export let businessUID;
 export function setBusinessUID (businessUIDValue) {
   businessUID = businessUIDValue
+}
+
+export let mainBusinessContractDetails = {
+  billingPeriodId: billingPeriodMongoId,
+  businessMongoId: '',
+  businessModulesDto: [],
+  contractDurationId: contractDurationMongoId,
+  contractDurationYears: 0,
+  contractAccepted: true
+};
+export function setMainBusinessContractDetails(mainBusinessContractDetailsValue) {
+  mainBusinessContractDetails = mainBusinessContractDetailsValue;
 }
