@@ -1,5 +1,5 @@
-import { finishCallback } from '../../core/core-variables';
+import { displayLogmasterUILastStep } from '../ui/ui-service';
 
 export function checkDriverEmailAlreadyExists () {
-    finishCallback();
+    displayLogmasterUILastStep();
 }

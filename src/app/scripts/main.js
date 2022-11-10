@@ -2,9 +2,10 @@ import { ajaxInit } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL, getBaseLogmasterURL } from './service/api/services';
 import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, finishCallback, loggedInUser, loggedInUserVehicles, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
+import { api, childrenGroups, finishCallback, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
 import { displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
+import { getAllGeotabVehicles } from './service/vehicles/vehicles';
 
 
 /**
@@ -13,31 +14,15 @@ import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   'use strict';
 
-  let getBusinessUIDFromWebProfile = function () {
-
-  };
-  let getStandardPricingDetails = function () {
-    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/standard-pricing/find-all-active-rrp-to-business/' + mainPartnerDetails._id, 
-      function () {
-        //on load
-        let standardPricingFetched = this.response.data;
-        console.log('standard-pricing fetched', standardPricingFetched);
-      }, 
-      function () {
-
-      },
-      mainParentAccessToken)
-      .send();
-  };
   let getPartnerDetails = function () {
-    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/partner/find-one-by-uid/' + mainPartnerUID, 
+    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/partner/find-one-by-uid/' + mainPartnerUID,
       function () {
         // onload
         setMainPartnerDetails(this.response.data);
         console.log('parnter details fetched', mainPartnerDetails);
-        if(loggedInUser.isDriver){
+        if (loggedInUser.isDriver) {
           checkDriverEmailAlreadyExists();
-        } else{
+        } else {
           //business
           checkBusinessEmailAlreadyExists();
         }
@@ -67,20 +52,11 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         uid: uid
       }));
   };
+  let callFetchAllVehicles = function () {
+    getAllGeotabVehicles(getPartnerDetails);
+  };
   let syncLoggedInUserAndVehiclesToLogmaster = function () {
     loginUsingUID(mainPartnerUID, getPartnerDetails);
-  };
-  let getVehicles = function (groupIds) {
-    api.call('Get', {
-      typeName: 'Device',
-      search: {
-        groups: groupIds
-      }
-    }, function (fetchedVehicles) {
-      console.log('fetchedVehicles', fetchedVehicles);
-      setLoggedInUserVehicles(fetchedVehicles);
-      syncLoggedInUserAndVehiclesToLogmaster();
-    });
   };
   let getGroupOfLoggedInUser = function (groupId) {
     api.call('Get', {
@@ -94,13 +70,13 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         let group = fetchedGroup[0];
         let initChildrenGroups = group.children;
         if (initChildrenGroups.length > 0) {
-          console.log('children of group', initChildrenGroups);
-          let childrenGroups = initChildrenGroups.map(function (child) {
+          setChildrenGroups(initChildrenGroups.map(function (child) {
             return {
               id: child.id
             }
-          });
-          getVehicles(childrenGroups);
+          }));
+          console.log('children of group', childrenGroups);
+          syncLoggedInUserAndVehiclesToLogmaster();
         } else {
           displayLogmasterUILastStep();
         }
@@ -177,7 +153,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       let currentSRC = document.getElementById('logmaster-main-iframe').src;
       console.log('currentSRC', currentSRC);
-      if(currentSRC != mainLogmasterURI){
+      if (currentSRC != mainLogmasterURI) {
         console.log('currentSRC updated to ', mainLogmasterURI);
         document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI;
       }
