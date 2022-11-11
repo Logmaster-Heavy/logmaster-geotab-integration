@@ -25,6 +25,8 @@ export const prodBaseLogmasterAPIURL = 'https://sandbox-api-au.logmaster.shop'
 
 export const cookieUidCname = 'external-login-uid';
 
+export const cookieMainURICname = 'geotab-portal-v2-uri'
+
 export const defaultPassword = 'Password1!';
 
 export let mainLogmasterURI;
