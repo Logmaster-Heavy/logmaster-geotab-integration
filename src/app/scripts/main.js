@@ -2,7 +2,7 @@ import { ajaxInit } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL, getBaseLogmasterURL } from './service/api/services';
 import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, childrenGroups, cookieMainURICname, finishCallback, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
+import { api, childrenGroups, cookieMainURICname, cookieUidCname, finishCallback, loggedInUser, logmasterK, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
 import { displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 import { getAllGeotabVehicles } from './service/vehicles/vehicles';
@@ -154,11 +154,12 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       deleteCookie(cookieMainURICname);
       setCookie(cookieMainURICname, mainLogmasterURI);
+      console.log('cookieMainURICName', mainLogmasterURI);
       let currentSRC = document.getElementById('logmaster-main-iframe').src;
       console.log('currentSRC', currentSRC);
       if (currentSRC != mainLogmasterURI) {
         console.log('currentSRC updated to ', mainLogmasterURI);
-        document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI;
+        document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI + '?' + cookieUidCname + '=' + CryptoJS.AES.encrypt(getCookie(cookieUidCname), logmasterK).toString();
       }
       // getting the current user to display in the UI
       // freshApi.getSession(session => {
