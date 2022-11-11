@@ -2,10 +2,11 @@ import { ajaxInit } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL, getBaseLogmasterURL } from './service/api/services';
 import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, childrenGroups, finishCallback, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
+import { api, childrenGroups, cookieMainURICname, finishCallback, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
 import { displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 import { getAllGeotabVehicles } from './service/vehicles/vehicles';
+import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
 
 
 /**
@@ -151,6 +152,8 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
     */
     focus: function (freshApi, freshState) {
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
+      deleteCookie(cookieMainURICname);
+      setCookie(cookieMainURICname, mainLogmasterURI);
       let currentSRC = document.getElementById('logmaster-main-iframe').src;
       console.log('currentSRC', currentSRC);
       if (currentSRC != mainLogmasterURI) {
