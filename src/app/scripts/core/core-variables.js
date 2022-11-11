@@ -1,8 +1,17 @@
 
-//change this when deploying to staging/prod
+//IMPORTANT
+//START: change these when deploying to staging/prod
 export const mainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
 export const contractDurationMongoId = '62bbcada9b8c495a93347323';
 export const billingPeriodMongoId = '62bbcada9b8c495a93347319';
+
+export const stagingMainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
+export const stagingContractDurationMongoId = '62bbcada9b8c495a93347323';
+export const stagingBillingPeriodMongoId = '62bbcada9b8c495a93347319';
+
+export const prodMainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
+export const prodContractDurationMongoId = '62bbcada9b8c495a93347323';
+export const prodBillingPeriodMongoId = '62bbcada9b8c495a93347319';
 
 export const devBaseLogmasterURL = 'http://localhost:8080';
 export const devBaseAPIURL = 'http://localhost:3005';
@@ -11,7 +20,8 @@ export const devBaseAPIURL = 'http://localhost:3005';
 // export const prodBaseLogmasterAPIURL = 'https://prod-api.logmaster.au'
 
 export const prodBaseLogmasterURL = 'https://logmaster-aus-sandbox-z626q6mhla-ts.a.run.app';
-export const prodBaseLogmasterAPIURL = 'https://logmaster-portal-navigation-z626q6mhla-ts.a.run.app'
+export const prodBaseLogmasterAPIURL = 'https://sandbox-api-au.logmaster.shop'
+//END: change these when deploying to staging/prod
 
 export const cookieUidCname = 'external-login-uid';
 
@@ -42,6 +52,11 @@ export function setMainPartnerDetails (mainPartnerDetailsValue) {
   mainPartnerDetails = mainPartnerDetailsValue;
 }
 
+export let childrenGroups;
+export function setChildrenGroups (childrenGroupsValue) {
+  childrenGroups = childrenGroupsValue;
+};
+
 export let loggedInUserVehicles;
 export function setLoggedInUserVehicles (loggedInUserVehiclesValue) {
   loggedInUserVehicles = loggedInUserVehiclesValue;
@@ -62,14 +77,17 @@ export function setBusinessUID (businessUIDValue) {
   businessUID = businessUIDValue
 }
 
-export let mainBusinessContractDetails = {
-  billingPeriodId: billingPeriodMongoId,
-  businessMongoId: '',
-  businessModulesDto: [],
-  contractDurationId: contractDurationMongoId,
-  contractDurationYears: 0,
-  contractAccepted: true
+export let contractModuleMasters;
+export function setContractModuleMasters (contractModuleMastersValue) {
+  contractModuleMasters = contractModuleMastersValue
 };
-export function setMainBusinessContractDetails(mainBusinessContractDetailsValue) {
-  mainBusinessContractDetails = mainBusinessContractDetailsValue;
+
+export let partnerRRP;
+export function setPartnerRRP (partnerRRPValue) {
+  partnerRRP = partnerRRPValue
+}
+
+export let businessContractMongoId;
+export function setBusinessContractMongoId (businessContractMongoIdValue) {
+  businessContractMongoId = businessContractMongoIdValue;
 }
