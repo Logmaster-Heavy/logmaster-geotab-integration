@@ -1,5 +1,5 @@
 import { METHODS } from '../../constants/method-constants';
-import { childrenGroups, loggedInUser, loggedInUserVehicles, mainParentAccessToken, setLoggedInUserVehicles } from '../../core/core-variables';
+import { api, childrenGroups, loggedInUser, loggedInUserVehicles, mainParentAccessToken, setLoggedInUserVehicles } from '../../core/core-variables';
 import { ajaxInit } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
