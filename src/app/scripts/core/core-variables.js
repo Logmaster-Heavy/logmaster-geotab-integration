@@ -16,6 +16,8 @@ export const prodBillingPeriodMongoId = '62bbcada9b8c495a93347319';
 export const devBaseLogmasterURL = 'http://localhost:8080';
 export const devBaseAPIURL = 'http://localhost:3005';
 
+export const logmasterK = '41Od9TB4o02AVy';
+
 // export const prodBaseLogmasterURL = 'https://logmaster.au';
 // export const prodBaseLogmasterAPIURL = 'https://prod-api.logmaster.au'
 
