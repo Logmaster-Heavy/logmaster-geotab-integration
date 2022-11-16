@@ -1,5 +1,5 @@
 import { METHODS } from '../../constants/method-constants';
-import { contractModuleMasters, mainParentAccessToken, mainPartnerDetails, partnerRRP, setContractModuleMasters, setPartnerRRP } from '../../core/core-variables';
+import { contractModuleMasters, mainParentAccessToken, mainParentDetails, partnerRRP, setContractModuleMasters, setPartnerRRP } from '../../core/core-variables';
 import { ajaxInit } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
@@ -23,7 +23,7 @@ export function getAllContractModuleMasters (callBackFunction) {
 };
 
 export function getAllActiveRRP (callBackFunction) {
-    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/standard-pricing/find-all-active-rrp-to-business/' + mainPartnerDetails._id,
+    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/standard-pricing/find-all-active-rrp-to-business/' + mainParentDetails._id,
         function () {
             //on load
             console.log('partner rrp fetched', this.response.data);

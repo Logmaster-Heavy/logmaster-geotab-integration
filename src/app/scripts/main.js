@@ -2,8 +2,8 @@ import { ajaxInit } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL, getBaseLogmasterURL } from './service/api/services';
 import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, childrenGroups, cookieMainURICname, cookieUidCname, finishCallback, loggedInUser, logmasterK, mainLogmasterURI, mainParentAccessToken, mainPartnerDetails, mainPartnerUID, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setLoggedInUserVehicles, setMainLogmasterURI, setMainParentAccessToken, setMainPartnerDetails } from './core/core-variables';
-import { displayLogmasterUILastStep } from './service/ui/ui-service';
+import { api, childrenGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, logmasterK, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails } from './core/core-variables';
+import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 import { getAllGeotabVehicles } from './service/vehicles/vehicles';
 import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
@@ -15,12 +15,17 @@ import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-serv
 geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   'use strict';
 
-  let getPartnerDetails = function () {
-    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/partner/find-one-by-uid/' + mainPartnerUID,
+  let getParentDetails = function () {
+    let endpoint = 'partner';
+    if(loggedInUser.isDriver){
+      endpoint = 'business';
+    }
+    console.log('endpoint', endpoint);
+    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/' + endpoint + '/find-one-by-uid/' + getParentUid(),
       function () {
         // onload
-        setMainPartnerDetails(this.response.data);
-        console.log('parnter details fetched', mainPartnerDetails);
+        setMainParentDetails(this.response.data);
+        console.log('parent details fetched', mainParentDetails);
         if (loggedInUser.isDriver) {
           checkDriverEmailAlreadyExists();
         } else {
@@ -29,14 +34,14 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         }
       },
       function () {
-        console.log('error fetching partner', this.response);
+        console.log('error fetching parent', this.response);
         displayLogmasterUILastStep();
       },
       mainParentAccessToken)
       .send();
   };
   let loginUsingUID = function (uid, callBackAfterLogin) {
-    console.log('start logging in partner');
+    console.log('start logging in parent');
     let onLoadFunc = function () {
       setMainParentAccessToken(this.response.data.accessToken);
       console.log('mainParentAccessToken fetched');
@@ -54,10 +59,10 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       }));
   };
   let callFetchAllVehicles = function () {
-    getAllGeotabVehicles(getPartnerDetails);
+    getAllGeotabVehicles(getParentDetails);
   };
   let syncLoggedInUserAndVehiclesToLogmaster = function () {
-    loginUsingUID(mainPartnerUID, getPartnerDetails);
+    loginUsingUID(getParentUid(), getParentDetails);
   };
   let getGroupOfLoggedInUser = function (groupId) {
     api.call('Get', {
@@ -158,8 +163,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       let currentSRC = document.getElementById('logmaster-main-iframe').src;
       console.log('currentSRC', currentSRC);
       if (currentSRC != mainLogmasterURI) {
-        console.log('currentSRC updated to ', mainLogmasterURI);
-        document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI + '?' + cookieUidCname + '=' + CryptoJS.AES.encrypt(getCookie(cookieUidCname), logmasterK).toString();
+        changeIframeURI('focus');
       }
       // getting the current user to display in the UI
       // freshApi.getSession(session => {
