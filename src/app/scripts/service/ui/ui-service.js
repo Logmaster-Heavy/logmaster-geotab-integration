@@ -11,5 +11,6 @@ export function displayLogmasterUILastStep() {
 export function changeIframeURI (source) {
     console.log('currentSRC updated to ', mainLogmasterURI);
     console.log('getCookie(cookieUidCname) ' + source, getCookie(cookieUidCname));
-    document.getElementById('logmaster-main-iframe').src = getBaseLogmasterURL() + mainLogmasterURI + '?' + cookieUidCname + '=' + CryptoJS.AES.encrypt(getCookie(cookieUidCname), logmasterK).toString();
+    const geotabLogmasterURL = `${getBaseLogmasterURL()}/geotab${mainLogmasterURI}/${encodeURIComponent(CryptoJS.AES.encrypt(getCookie(cookieUidCname), logmasterK).toString())}`
+    document.getElementById('logmaster-main-iframe').src = geotabLogmasterURL
 }
