@@ -4,7 +4,7 @@ import { ajaxInit } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { getAllActiveRRP, getAllContractModuleMasters } from '../standard-pricing/business-standard-pricing';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
-import { getCookie, setCookie } from '../utils/cookies-service';
+import { getBusinessUIDFromWebProfile } from '../user/user';
 import { getAllGeotabVehicles } from '../vehicles/vehicles';
 
 
@@ -12,7 +12,10 @@ export function fetchPartnerRRP () {
     getAllActiveRRP(createBusinessFromGeotab);
 };
 export function createBusinessFromGeotab() {
-    let businessName = loggedInUser.firstName + ' ' + loggedInUser.lastName;
+    let businessName = loggedInUser.firstName;
+    if(loggedInUser.lastName != ''){
+        businessName += ' ' + loggedInUser.lastName;
+    }
     let businessDetails = {
         businessModules: partnerRRP,
         persona: {
@@ -26,7 +29,7 @@ export function createBusinessFromGeotab() {
         supportEmail: loggedInUser.name.trim(),
         isActive: true,
         demoOption: 'NO_DEMO',
-        externalBusinessId: loggedInUser.id.trim()
+        externalSiteId: loggedInUser.id.trim()
     };
     console.log('business-body', businessDetails);
     let onLoadFunc = function () {
@@ -42,7 +45,7 @@ export function createBusinessFromGeotab() {
     let onErrorFunc = function () {
         // handle non-HTTP error (e.g. network down)
         console.log('non http error', this.response);
-        errorCallback();
+        displayLogmasterUILastStep()
     };
     ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/business',
         onLoadFunc,
@@ -91,7 +94,7 @@ export function acceptBusinessContract() {
         }));
 };
 export function updateLogmasterDataWithGeoTab() {
-    loggedInBusiness['externalBusinessId'] = loggedInUser.id;
+    loggedInBusiness['externalSiteId'] = loggedInUser.id;
     ajaxInit(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business/' + loggedInBusiness._id,
         function () {
             // onload
@@ -100,9 +103,10 @@ export function updateLogmasterDataWithGeoTab() {
         },
         function () {
             // on error
+            console.log('error update business external id', this.response);
         },
         mainParentAccessToken)
-        .send(JSON.stringify(loggedInBusiness))
+        .send(JSON.stringify(loggedInBusiness));
 };
 export function checkBusinessEmailAlreadyExists() {
     ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email',
@@ -112,11 +116,11 @@ export function checkBusinessEmailAlreadyExists() {
             if (this.response.success) {
                 setLoggedInBusiness(this.response.data);
                 console.log('business already created', loggedInBusiness);
-                if (loggedInBusiness.externalBusinessId) {
+                if (loggedInBusiness.externalSiteId) {
                     //geotab already synced
                     //asynchronously sync vehicles
                     getAllGeotabVehicles();
-                    getBusinessUIDFromWebProfile();
+                    getBusinessUIDFromWebProfile(loggedInBusiness);
                 } else {
                     //update logmaster with geotab specific data
                     updateLogmasterDataWithGeoTab();
@@ -129,7 +133,6 @@ export function checkBusinessEmailAlreadyExists() {
                  * yung laman ng Business driver page are Drivers under sa nakalogin na user
                  * update Readme
                  */
-                displayLogmasterUILastStep();
             } else {
                 getAllContractModuleMasters(fetchPartnerRRP);
             }
@@ -155,23 +158,7 @@ export function createBussinesPassword() {
         },
         function () {
             console.log('error create password', this.response);
-            errorCallback();
+            displayLogmasterUILastStep();
         })
         .send(JSON.stringify(passwordPayload));
-};
-export function getBusinessUIDFromWebProfile() {
-    let mainWebProfile = loggedInBusiness.webProfiles.find(function (profile) {
-        return profile.isRoot == true;
-    });
-    if (mainWebProfile) {
-        setBusinessUID(mainWebProfile.uid);
-        console.log('businessUID', businessUID);
-        let existingCookie = getCookie(cookieUidCname);
-        console.log('existingCookie', existingCookie);
-        if (!existingCookie) {
-            setCookie(cookieUidCname, businessUID);
-            console.log('cookie set', getCookie(cookieUidCname));
-        }
-    }
-    displayLogmasterUILastStep();
 }

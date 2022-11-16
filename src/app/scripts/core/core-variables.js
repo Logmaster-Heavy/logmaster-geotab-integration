@@ -2,16 +2,23 @@
 //IMPORTANT
 //START: change these when deploying to staging/prod
 export const mainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
+export const mainBusinessParentUID = 'XeqTkJ5VUnWFYWK7bKWXeQ58yLF3';
+export function getParentUid () {
+  if(loggedInUser.isDriver) {
+    return mainBusinessParentUID;
+  }
+  return mainPartnerUID;
+}
 export const contractDurationMongoId = '62bbcada9b8c495a93347323';
 export const billingPeriodMongoId = '62bbcada9b8c495a93347319';
 
-export const stagingMainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
-export const stagingContractDurationMongoId = '62bbcada9b8c495a93347323';
-export const stagingBillingPeriodMongoId = '62bbcada9b8c495a93347319';
+export const businessParentOfDriverMongoId = '624f0935f07b702b6d33e9a6';
+export const prodBusinessParentOfDriverMongoId = '62e325af331dfc140368ec9f';
 
-export const prodMainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
-export const prodContractDurationMongoId = '62bbcada9b8c495a93347323';
-export const prodBillingPeriodMongoId = '62bbcada9b8c495a93347319';
+export const prodMainPartnerUID = 'NLDvYreN2bUTOKcRSJPSKnFtHJX2';
+export const prodMainBusinessParentUID = '1EisNqacnIgQuHMaRNtUwDjjyH83';
+export const prodContractDurationMongoId = '62c1c30c7db5cd6fb8a7e7ef';
+export const prodBillingPeriodMongoId = '62c1c30b7db5cd6fb8a7e7e9';
 
 export const devBaseLogmasterURL = 'http://localhost:8080';
 export const devBaseAPIURL = 'http://localhost:3005';
@@ -51,9 +58,9 @@ export function setMainParentAccessToken (mainParentAccessTokenValue) {
   mainParentAccessToken = mainParentAccessTokenValue;
 }
 
-export let mainPartnerDetails;
-export function setMainPartnerDetails (mainPartnerDetailsValue) {
-  mainPartnerDetails = mainPartnerDetailsValue;
+export let mainParentDetails;
+export function setMainParentDetails (mainParentDetailsValue) {
+  mainParentDetails = mainParentDetailsValue;
 }
 
 export let childrenGroups;
@@ -94,4 +101,9 @@ export function setPartnerRRP (partnerRRPValue) {
 export let businessContractMongoId;
 export function setBusinessContractMongoId (businessContractMongoIdValue) {
   businessContractMongoId = businessContractMongoIdValue;
+}
+
+export let loggedInDriver;
+export function setLoggedInDriver (loggedInDriverValue) {
+  loggedInDriver = loggedInDriverValue;
 }
