@@ -4,7 +4,7 @@ import { ajaxInit } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
 
-export function getAllGeotabVehicles(callbackFunction) {
+export function getAllGeotabVehicles() {
     api.call('Get', {
         typeName: 'Device',
         search: {
@@ -37,7 +37,7 @@ export function syncAllGeotabVehiclesToLogmaster() {
     ajaxInit (METHODS.POST, getBaseLogmasterAPIURL() + '/vehicle/create-multiple', 
         function () {
             //onload
-            console.log('vehicles synced to logmaster', this.response.data);
+            console.log(this.response.message);
         },
         function () {
             //onerror
