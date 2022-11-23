@@ -5,6 +5,14 @@
   "items": [
     {
       "path": "ActivityLink",
+      "menuId": "LogmasterRootMenu",
+      "menuName": {
+        "en": "Logmaster AU"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "LogmasterRootMenu/",
       "menuId": "BusinessDriverPage",
       "url": "dist/businessDriverPage.html",
       "menuName": {
@@ -13,7 +21,7 @@
       "svgIcon": "dist/images/icon.svg"
     },
     {
-      "path": "ActivityLink",
+      "path": "LogmasterRootMenu/",
       "menuId": "BusinessManualEventsPage",
       "url": "dist/manualEventsPage.html",
       "menuName": {
@@ -22,7 +30,7 @@
       "svgIcon": "dist/images/icon.svg"
     },
     {
-      "path": "ActivityLink",
+      "path": "LogmasterRootMenu/",
       "menuId": "BusinessVehiclesPage",
       "url": "dist/vehiclesPage.html",
       "menuName": {
@@ -31,7 +39,7 @@
       "svgIcon": "dist/images/icon.svg"
     },
     {
-      "path": "ActivityLink",
+      "path": "LogmasterRootMenu/",
       "menuId": "BusinessReportsPage",
       "menuName": {
         "en": "Reports"
@@ -48,9 +56,33 @@
     },
     {
       "path": "BusinessReportsPage/",
-      "url": "dist/reportWACompliancePage.html",
+      "url": "dist/reportNHVRBreachesPage.html",
       "menuName": {
-        "en": "WA Compliance"
+        "en": "NHVR Breaches"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessReportsPage/",
+      "url": "dist/reportPreStartChecksPage.html",
+      "menuName": {
+        "en": "Pre-Start Checks"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessReportsPage/",
+      "url": "dist/reportFitnessDeclarationsPage.html",
+      "menuName": {
+        "en": "Fitness Declarations"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessReportsPage/",
+      "url": "dist/reportFormsReportPage.html",
+      "menuName": {
+        "en": "Forms Report"
       },
       "svgIcon": "dist/images/icon.svg"
     }

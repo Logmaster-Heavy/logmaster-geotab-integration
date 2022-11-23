@@ -2,7 +2,7 @@ import { ajaxInit } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL, getBaseLogmasterURL } from './service/api/services';
 import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, childrenGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, logmasterK, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails } from './core/core-variables';
+import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, logmasterK, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails } from './core/core-variables';
 import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 import { getAllGeotabVehicles } from './service/vehicles/vehicles';
@@ -109,6 +109,12 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
           setLoggedInUser(result[0]);
           console.log('logged in user', loggedInUser);
           if (loggedInUser.companyGroups.length > 0) {
+            setCompanyGroups(loggedInUser.companyGroups.map (function (group) {
+              return {
+                id: group.id
+              }
+            }));
+            console.log('companyGroups', companyGroups);
             getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
           } else {
             console.log('logged in user does not belong to a group');

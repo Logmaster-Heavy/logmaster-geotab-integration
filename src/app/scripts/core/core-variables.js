@@ -63,6 +63,13 @@ export function setMainParentDetails (mainParentDetailsValue) {
   mainParentDetails = mainParentDetailsValue;
 }
 
+//for driver fetching
+export let companyGroups;
+export function setCompanyGroups (companyGroupsValue) {
+  companyGroups = companyGroupsValue;
+}
+
+//for vehicle fetching
 export let childrenGroups;
 export function setChildrenGroups (childrenGroupsValue) {
   childrenGroups = childrenGroupsValue;
@@ -88,6 +95,11 @@ export function setBusinessUID (businessUIDValue) {
   businessUID = businessUIDValue
 }
 
+export let businessRole;
+export function setBusinessRole (businessRoleValue) {
+  businessRole = businessRoleValue
+}
+
 export let contractModuleMasters;
 export function setContractModuleMasters (contractModuleMastersValue) {
   contractModuleMasters = contractModuleMastersValue
@@ -106,4 +118,9 @@ export function setBusinessContractMongoId (businessContractMongoIdValue) {
 export let loggedInDriver;
 export function setLoggedInDriver (loggedInDriverValue) {
   loggedInDriver = loggedInDriverValue;
+}
+
+export let connectedDrivers;
+export function setConnectedDrivers (connectedDriversValue) {
+  connectedDrivers = connectedDriversValue;
 }
