@@ -41,10 +41,31 @@ module.exports = {
         }),
         new HtmlWebPackPlugin({
             
-            template: './src/app/pages/reportWACompliancePage.html',
+            template: './src/app/pages/reportNHVRBreachesPage.html',
             inject: true,
             chunks: 'all',
-            filename: './reportWACompliancePage.html'
+            filename: './reportNHVRBreachesPage.html'
+        }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/reportPreStartChecksPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './reportPreStartChecksPage.html'
+        }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/reportFitnessDeclarationsPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './reportFitnessDeclarationsPage.html'
+        }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/reportFormsReportPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './reportFormsReportPage.html'
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css',

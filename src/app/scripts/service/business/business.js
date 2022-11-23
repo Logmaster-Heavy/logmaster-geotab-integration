@@ -2,6 +2,7 @@ import { METHODS } from '../../constants/method-constants';
 import { billingPeriodMongoId, businessContractMongoId, businessUID, contractDurationMongoId, cookieUidCname, defaultPassword, loggedInBusiness, loggedInUser, mainParentAccessToken, partnerRRP, setBusinessContractMongoId, setBusinessUID, setLoggedInBusiness } from '../../core/core-variables';
 import { ajaxInit } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
+import { getAllGeotabDrivers } from '../driver/driver';
 import { getAllActiveRRP, getAllContractModuleMasters } from '../standard-pricing/business-standard-pricing';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
 import { getBusinessUIDFromWebProfile } from '../user/user';
@@ -120,6 +121,8 @@ export function checkBusinessEmailAlreadyExists() {
                     //geotab already synced
                     //asynchronously sync vehicles
                     getAllGeotabVehicles();
+                    //async sync driver
+                    getAllGeotabDrivers();
                     getBusinessUIDFromWebProfile(loggedInBusiness);
                 } else {
                     //update logmaster with geotab specific data
