@@ -120,9 +120,9 @@ export function checkBusinessEmailAlreadyExists() {
                 if (loggedInBusiness.externalSiteId) {
                     //geotab already synced
                     //asynchronously sync vehicles
-                    getAllGeotabVehicles();
+                    //getAllGeotabVehicles();
                     //async sync driver
-                    getAllGeotabDrivers();
+                    //getAllGeotabDrivers();
                     getBusinessUIDFromWebProfile(loggedInBusiness);
                 } else {
                     //update logmaster with geotab specific data
