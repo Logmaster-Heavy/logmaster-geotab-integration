@@ -61,7 +61,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   let callFetchAllVehicles = function () {
     getAllGeotabVehicles(getParentDetails);
   };
-  let syncLoggedInUserAndVehiclesToLogmaster = function () {
+  let syncLoggedInUserToLogmaster = function () {
     loginUsingUID(getParentUid(), getParentDetails);
   };
   let getGroupOfLoggedInUser = function (groupId) {
@@ -82,7 +82,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
             }
           }));
           console.log('children of group', childrenGroups);
-          syncLoggedInUserAndVehiclesToLogmaster();
+          syncLoggedInUserToLogmaster();
         } else {
           displayLogmasterUILastStep();
         }
