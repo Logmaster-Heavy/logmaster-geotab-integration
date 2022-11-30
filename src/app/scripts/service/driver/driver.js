@@ -7,17 +7,13 @@ import { getBusinessUIDFromWebProfile } from '../user/user';
 
 export function generateDriverDetails (user, parentExternalSiteId) {
     let driverName = user.firstName.trim();
-    let dateToday = new Date();
-    if (user.lastName != '') {
-        driverName += ' ' + user.lastName.trim();
-    }
     let driverDetails = {
         driversLicenseState: STATES[user.licenseProvince.trim().toLowerCase()],
         emailAddress: user.name.trim(),
         driverName: driverName,
-        driverDateOfBirth: dateToday.getFullYear() + '-' + dateToday.getMonth() + '-' + dateToday.getDate(),
+        driverDateOfBirth: null,
         driversLicenseNumber: user.licenseNumber.trim(),
-        driversLicenseExpiry: (dateToday.getFullYear() + 10) + '-' + dateToday.getMonth() + '-' + dateToday.getDate(),
+        driversLicenseExpiry: null,
         entityId: businessParentOfDriverMongoId,
         isDemoAccount: false,
         demoOption: 'NO_DEMO',
