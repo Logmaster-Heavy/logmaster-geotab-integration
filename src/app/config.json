@@ -9,7 +9,7 @@
       "menuName": {
         "en": "Logmaster AU"
       },
-      "svgIcon": "dist/images/icon.svg"
+      "svgIcon": "dist/images/logmaster-logo-grayscale.svg"
     },
     {
       "path": "LogmasterRootMenu/",
