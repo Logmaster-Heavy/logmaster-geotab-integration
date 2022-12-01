@@ -7,6 +7,7 @@ import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-ser
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 import { getAllGeotabVehicles } from './service/vehicles/vehicles';
 import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
+import { checkEmailTheSameAsSavedUID } from './service/user/user';
 
 
 /**
@@ -40,6 +41,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       mainParentAccessToken)
       .send();
   };
+  let checkFirstIfEmailTheSameAsSavedUID = function () {
+    checkEmailTheSameAsSavedUID(loggedInUser.name, getParentDetails);
+  };
   let loginUsingUID = function (uid, callBackAfterLogin) {
     console.log('start logging in parent');
     let onLoadFunc = function () {
@@ -58,11 +62,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         uid: uid
       }));
   };
-  let callFetchAllVehicles = function () {
-    getAllGeotabVehicles(getParentDetails);
-  };
   let syncLoggedInUserToLogmaster = function () {
-    loginUsingUID(getParentUid(), getParentDetails);
+    loginUsingUID(getParentUid(), checkFirstIfEmailTheSameAsSavedUID);
+    //loginUsingUID(getParentUid(), getParentDetails);
   };
   let getGroupOfLoggedInUser = function (groupId) {
     api.call('Get', {
@@ -108,6 +110,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         } else {
           setLoggedInUser(result[0]);
           console.log('logged in user', loggedInUser);
+
           if (loggedInUser.companyGroups.length > 0) {
             setCompanyGroups(loggedInUser.companyGroups.map (function (group) {
               return {
@@ -147,6 +150,8 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       setAPI(mainGeotabAPI);
       setFinishCallback(initializeCallback);
+      const currentUid = getCookie(cookieUidCname);
+      console.log('cookieUidCname onnit ', getCookie(cookieUidCname));
       getLoggedInUser();
     },
 

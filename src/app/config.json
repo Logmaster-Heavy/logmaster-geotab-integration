@@ -9,7 +9,7 @@
       "menuName": {
         "en": "Logmaster AU"
       },
-      "svgIcon": "dist/images/logmaster-logo-grayscale.svg"
+      "svgIcon": "dist/images/geotab-logmaster-logo.svg"
     },
     {
       "path": "LogmasterRootMenu/",
@@ -18,7 +18,7 @@
       "menuName": {
         "en": "Drivers"
       },
-      "svgIcon": "dist/images/icon.svg"
+      "svgIcon": "dist/images/geotab-logmaster-drivers.svg"
     },
     {
       "path": "LogmasterRootMenu/",
@@ -27,7 +27,7 @@
       "menuName": {
         "en": "Manual Events"
       },
-      "svgIcon": "dist/images/icon.svg"
+      "svgIcon": "dist/images/geotab-logmaster-manual-events.svg"
     },
     {
       "path": "LogmasterRootMenu/",
@@ -36,7 +36,7 @@
       "menuName": {
         "en": "Vehicles"
       },
-      "svgIcon": "dist/images/icon.svg"
+      "svgIcon": "dist/images/geotab-logmaster-vehicles.svg"
     },
     {
       "path": "LogmasterRootMenu/",
@@ -44,7 +44,7 @@
       "menuName": {
         "en": "Reports"
       },
-      "svgIcon": "dist/images/icon.svg"
+      "svgIcon": "dist/images/geotab-logmaster-reports.svg"
     },
     {
       "path": "BusinessReportsPage/",
