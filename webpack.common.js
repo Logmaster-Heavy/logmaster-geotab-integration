@@ -71,6 +71,34 @@ module.exports = {
             filename: '[name].css',
             chunkFilename: '[id].css'
         }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/businessDashboardPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './businessDashboardPage.html'
+        }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/adminUserListPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './adminUserListPage.html'
+        }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/adminRoleListPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './adminRoleListPage.html'
+        }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/adminResponsibilitiesListPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './adminResponsibilitiesListPage.html'
+        }),
     ],
     output: {
         path: path.resolve(__dirname, 'dist'),

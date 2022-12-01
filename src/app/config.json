@@ -13,6 +13,15 @@
     },
     {
       "path": "LogmasterRootMenu/",
+      "menuId": "DashboardBusinessPage",
+      "url": "dist/businessDashboardPage.html",
+      "menuName": {
+        "en": "Dashboard"
+      },
+      "svgIcon": "dist/images/geotab-logmaster-drivers.svg"
+    },
+    {
+      "path": "LogmasterRootMenu/",
       "menuId": "BusinessDriverPage",
       "url": "dist/businessDriverPage.html",
       "menuName": {
@@ -83,6 +92,38 @@
       "url": "dist/reportFormsReportPage.html",
       "menuName": {
         "en": "Forms Report"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "LogmasterRootMenu/",
+      "menuId": "BusinessAdminPage",
+      "menuName": {
+        "en": "Admin"
+      },
+      "svgIcon": "dist/images/geotab-logmaster-reports.svg"
+    },
+    {
+      "path": "BusinessAdminPage/",
+      "url": "dist/adminUserListPage.html",
+      "menuName": {
+        "en": "User List"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessAdminPage/",
+      "url": "dist/adminRoleListPage.html",
+      "menuName": {
+        "en": "Role List"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessAdminPage/",
+      "url": "dist/adminResponsibilitiesListPage.html",
+      "menuName": {
+        "en": "Responsibilities List"
       },
       "svgIcon": "dist/images/icon.svg"
     }

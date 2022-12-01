@@ -22,7 +22,9 @@ export function changeIframeURI (source) {
         uriSplitted.shift();
         //append the first 2
         geotabLogmasterURL += `/${uriSplitted.shift()}`;
-        geotabLogmasterURL += `/${uriSplitted.shift()}`;
+        if(uriSplitted.length > 0){
+            geotabLogmasterURL += `/${uriSplitted.shift()}`;
+        }
     }
     //append the accountId
     geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(getCookie(cookieUidCname), logmasterK).toString())}`;
