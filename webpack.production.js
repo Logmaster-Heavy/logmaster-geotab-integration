@@ -122,7 +122,8 @@ module.exports = merge(common, {
         new CopyWebpackPlugin({
             patterns: [
                 { from: './src/app/images', to: 'images' },
-                { from: './src/app/translations/', to: 'translations/' }
+                { from: './src/app/translations/', to: 'translations/' },
+                { from: './src/app/config.json', transform: transform },
             ]
         }) 
     ],
