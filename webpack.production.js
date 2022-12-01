@@ -121,9 +121,7 @@ module.exports = merge(common, {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                { from: './src/app/images/icon.svg', to: 'images/' },
-                { from: './src/app/images/logmaster-logo-grayscale.svg', to: 'images/' },
-                { from: './src/app/config.json', transform: transform },
+                { from: './src/app/images', to: 'images' },
                 { from: './src/app/translations/', to: 'translations/' }
             ]
         }) 
