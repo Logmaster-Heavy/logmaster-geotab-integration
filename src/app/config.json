@@ -18,7 +18,7 @@
       "menuName": {
         "en": "Dashboard"
       },
-      "svgIcon": "dist/images/geotab-logmaster-drivers.svg"
+      "svgIcon": "dist/images/geotab-logmaster-dashboard.svg"
     },
     {
       "path": "LogmasterRootMenu/",
@@ -101,7 +101,7 @@
       "menuName": {
         "en": "Admin"
       },
-      "svgIcon": "dist/images/geotab-logmaster-reports.svg"
+      "svgIcon": "dist/images/geotab-logmaster-admin.svg"
     },
     {
       "path": "BusinessAdminPage/",
