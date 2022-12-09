@@ -126,6 +126,22 @@
         "en": "Responsibilities List"
       },
       "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessAdminPage/",
+      "url": "dist/adminDepotConfigurationPage.html",
+      "menuName": {
+        "en": "Depot Configuration"
+      },
+      "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessAdminPage/",
+      "url": "dist/adminReportSetupPage.html",
+      "menuName": {
+        "en": "Form Setup"
+      },
+      "svgIcon": "dist/images/icon.svg"
     }
   ],
   "dev": {
