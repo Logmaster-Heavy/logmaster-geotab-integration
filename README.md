@@ -67,6 +67,11 @@ Click 'Ok' button, then click on 'Save' on the upper left corner
 
 If all went well, you should be able to see the changes on geotab based on the 'dist/config.json'
 
+Similar to this:
+
+![geotab-save.png](images/readme/geotab-logmaster-menu.png)
+
+
 
 ### Customize configuration
 See [Configuration Reference](https://github.com/Geotab/generator-addin).
