@@ -60,6 +60,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       if (fetchedGroup.length > 0) {
         let group = fetchedGroup[0];
         let initChildrenGroups = group.children;
+        initChildrenGroups.push({
+          id: group.id
+        });
         if (initChildrenGroups.length > 0) {
           setChildrenGroups(initChildrenGroups.map(function (child) {
             return {

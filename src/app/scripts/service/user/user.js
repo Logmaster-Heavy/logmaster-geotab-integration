@@ -9,7 +9,8 @@ export function checkEmailTheSameAsSavedUID(email, callBackFunctionAfter) {
     ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/find-by-email',
         function () {
             //onload
-            if (this.response.data.uid == getCookie(cookieUidCname)) {
+            console.log('email fetch result', this.response);
+            if(this.response.success && this.response.data.uid == getCookie(cookieUidCname)){
                 //if email is the same uid
                 console.log('email is the same as uid');
                 displayLogmasterUILastStep();
@@ -26,7 +27,7 @@ export function checkEmailTheSameAsSavedUID(email, callBackFunctionAfter) {
         mainParentAccessToken)
         .send(JSON.stringify({
             'email': email
-        }))
+        }));
 
 }
 
@@ -42,7 +43,7 @@ export function getBusinessUIDFromWebProfile(userToUse) {
         console.log('businessRole', businessRole);
         deleteCookie(cookieUidCname);
         console.log('delete cookieUidCname');
-        setCookie(cookieUidCname, businessUID);
+        setCookie(cookieUidCname, businessUID, 0.008);
         console.log('cookie set', getCookie(cookieUidCname));
     }
     displayLogmasterUILastStep();
