@@ -33,13 +33,13 @@ Database
     Logmaster
 ```
 
-### Compiles and minifies for production
+### Deploying to Geotab STEP 1: Compiles and minifies for production
 ```
 npm run build
 ```
 
 
-### Deploying to Geotab
+### Deploying to Geotab STEP 2 and beyond
 
 Login to https://my1623.geotab.com/ using one of the Admin credentials above.
 
