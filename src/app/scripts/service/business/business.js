@@ -5,7 +5,7 @@ import { getBaseLogmasterAPIURL } from '../api/services';
 import { getAllGeotabDrivers } from '../driver/driver';
 import { getAllActiveRRP, getAllContractModuleMasters } from '../standard-pricing/business-standard-pricing';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
-import { getBusinessUIDFromWebProfile } from '../user/user';
+import { getBusinessUIDFromWebProfile, startSyncingUsersToLogmaster } from '../user/user';
 import { getAllGeotabVehicles } from '../vehicles/vehicles';
 
 
@@ -124,6 +124,8 @@ export function checkBusinessEmailAlreadyExists() {
                     //async sync driver
                     getAllGeotabDrivers();
                     getBusinessUIDFromWebProfile(loggedInBusiness);
+                    //async sync all users that are not drivers after setting
+                    startSyncingUsersToLogmaster();
                 } else {
                     //update logmaster with geotab specific data
                     updateLogmasterDataWithGeoTab();

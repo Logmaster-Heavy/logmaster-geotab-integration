@@ -99,6 +99,20 @@ module.exports = {
             chunks: 'all',
             filename: './adminResponsibilitiesListPage.html'
         }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/adminDepotConfigurationPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './adminDepotConfigurationPage.html'
+        }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/adminReportSetupPage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './adminReportSetupPage.html'
+        }),
     ],
     output: {
         path: path.resolve(__dirname, 'dist'),

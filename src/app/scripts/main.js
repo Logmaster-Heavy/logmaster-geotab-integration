@@ -7,7 +7,7 @@ import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-ser
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 import { getAllGeotabVehicles } from './service/vehicles/vehicles';
 import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
-import { checkEmailTheSameAsSavedUID } from './service/user/user';
+import { checkEmailTheSameAsSavedUID, loginUsingUID } from './service/user/user';
 
 
 /**
@@ -44,26 +44,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   let checkFirstIfEmailTheSameAsSavedUID = function () {
     checkEmailTheSameAsSavedUID(loggedInUser.name, getParentDetails);
   };
-  let loginUsingUID = function (uid, callBackAfterLogin) {
-    console.log('start logging in parent');
-    let onLoadFunc = function () {
-      setMainParentAccessToken(this.response.data.accessToken);
-      console.log('mainParentAccessToken fetched');
-      callBackAfterLogin();
-    };
-    let onErrorFunc = function () {
-      console.log('error signing in partner', this.response);
-      displayLogmasterUILastStep();
-    };
-    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/auth/signin-via-token',
-      onLoadFunc,
-      onErrorFunc)
-      .send(JSON.stringify({
-        uid: uid
-      }));
-  };
+  
   let syncLoggedInUserToLogmaster = function () {
-    loginUsingUID(getParentUid(), checkFirstIfEmailTheSameAsSavedUID);
+    loginUsingUID(getParentUid(), checkFirstIfEmailTheSameAsSavedUID, setMainParentAccessToken);
     //loginUsingUID(getParentUid(), getParentDetails);
   };
   let getGroupOfLoggedInUser = function (groupId) {
@@ -77,6 +60,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       if (fetchedGroup.length > 0) {
         let group = fetchedGroup[0];
         let initChildrenGroups = group.children;
+        initChildrenGroups.push({
+          id: group.id
+        });
         if (initChildrenGroups.length > 0) {
           setChildrenGroups(initChildrenGroups.map(function (child) {
             return {

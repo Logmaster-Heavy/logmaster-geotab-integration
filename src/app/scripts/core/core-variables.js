@@ -58,6 +58,11 @@ export function setMainParentAccessToken (mainParentAccessTokenValue) {
   mainParentAccessToken = mainParentAccessTokenValue;
 }
 
+export let businessLoggedInAccessToken;
+export function setBusinessLoggedInAccessToken (businessLoggedInAccessTokenValue) {
+  businessLoggedInAccessToken = businessLoggedInAccessTokenValue;
+}
+
 export let mainParentDetails;
 export function setMainParentDetails (mainParentDetailsValue) {
   mainParentDetails = mainParentDetailsValue;
@@ -123,4 +128,14 @@ export function setLoggedInDriver (loggedInDriverValue) {
 export let connectedDrivers;
 export function setConnectedDrivers (connectedDriversValue) {
   connectedDrivers = connectedDriversValue;
+}
+
+export let businessAdminSecurityRole;
+export function setBusinessAdminSecurityRole (businessAdminSecurityRoleValue) {
+  businessAdminSecurityRole = businessAdminSecurityRoleValue;
+}
+
+export let businessUsersToSync;
+export function setBusinessUsersToSync (businessUsersToSyncValue) {
+  businessUsersToSync = businessUsersToSyncValue;
 }
