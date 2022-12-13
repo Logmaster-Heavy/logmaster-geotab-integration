@@ -1,5 +1,5 @@
 {
-  "name": "logmasterEwd2",
+  "name": "logmasterewd2",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,9 @@
     "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
     "build:template": "node ./utils/templateBuilder.js",
       "template": "start-server-and-test serve http://localhost:9000 build:template",
-    "build": "webpack --mode production --config webpack.production.js",
+    "build:production": "webpack --env CORE_ENV=production --mode production --config webpack.production.js",
+    "build:sandbox": "webpack --env CORE_ENV=dev --mode production --config webpack.production.js",
+    "build:staging": "webpack --env CORE_ENV=staging --mode production --config webpack.production.js",
     "serve": "webpack serve --mode development --config webpack.development.js",
     "test": "start-server-and-test serve http://localhost:9000 mocha",
     "mocha": "mocha test/**/*.js"

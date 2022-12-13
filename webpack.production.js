@@ -10,6 +10,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const config = require('./src/app/config.json');
 const ESLintPlugin = require('eslint-webpack-plugin');
 
+
 /**
  * Removes "dev" element of the config tree on production build
  * 
@@ -32,102 +33,114 @@ const transform = function (content, path) {
     return response;
 }
 
-module.exports = merge(common, {
-    mode: 'production',
-    entry: './src/app/index.js',
-    module: {
-        rules: [
-            {
-                test: /\.css$/,
-                exclude: /\.dev/,
-                use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            publicPath: config.dev.dist.host
-                        }
-                    },
-                    'css-loader',
-                    {
-                        loader: './src/.dev/loaders/css-sandbox/css-sandbox.js',
-                        options: { prefix: '#logmasterEwd2' }
-                    }
-                ]
-            },
-            {
-                test: /\.js$/,
-                exclude: [/node_modules/, /\.dev/],
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
-                },
-            },
-            {
-                test: /\.html$/,
-                exclude: /\.dev/,
-                use: [
-                    {
-                        loader: 'html-loader',
-                        options: { minimize: true }
-                    }
-                ]
-            },
-            {
-                test: /\.(png|svg|jpg|gif)$/,
-                exclude: /\.dev/,
-                type: 'asset/resource'
-            }
-        ]
-    },
-    optimization: {
-        minimize: true,
-        minimizer: [
-            new CssMinimizerPlugin(),
-            new TerserPlugin({
-                test: /\.js(\?.*)?$/i
-            })
-        ]
-    },
-    plugins: [
-        new ESLintPlugin({
-            extensions: ['js'],
-            exclude: ['/node_modules/', '/\.dev/'],
-            formatter: 'stylish'
-        }),
-        new RemoveEmptyScriptsPlugin(),
-        new ImageMinimizerPlugin({
-            exclude: /dev/,
-            test: /\.(jpe?g|png|gif|svg)$/,
-            minimizerOptions: {
-                plugins: [
-                    ['gifsicle'],
-                    ['mozjpeg'],
-                    ['pngquant'],
-                    [
-                        'svgo',
+const entry_point = function (env) {
+    if(env.CORE_ENV == 'dev'){
+        return './src/.sandbox/index.js';
+    } else if(env.CORE_ENV == 'staging'){
+        return './src/.staging/index.js';
+    }
+    return './src/app/index.js';
+}
+
+module.exports = function (env) {
+    console.log(env);
+    return merge(common, {
+        mode: 'production',
+        entry: entry_point(env),
+        module: {
+            rules: [
+                {
+                    test: /\.css$/,
+                    exclude: /\.dev/,
+                    use: [
                         {
-                            plugins: [
-                                {
-                                    name: "cleanupIDs",
-                                    active: false 
-                                }
-                            ]
+                            loader: MiniCssExtractPlugin.loader,
+                            options: {
+                                publicPath: config.dev.dist.host
+                            }
+                        },
+                        'css-loader',
+                        {
+                            loader: './src/.dev/loaders/css-sandbox/css-sandbox.js',
+                            options: { prefix: '#logmasterEwd2' }
                         }
                     ]
-                ]
-            }
-        }),
-        new CopyWebpackPlugin({
-            patterns: [
-                { from: './src/app/images', to: 'images' },
-                { from: './src/app/translations/', to: 'translations/' },
-                { from: './src/app/config.json', transform: transform },
+                },
+                {
+                    test: /\.js$/,
+                    exclude: [/node_modules/, /\.dev/],
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    },
+                },
+                {
+                    test: /\.html$/,
+                    exclude: /\.dev/,
+                    use: [
+                        {
+                            loader: 'html-loader',
+                            options: { minimize: true }
+                        }
+                    ]
+                },
+                {
+                    test: /\.(png|svg|jpg|gif)$/,
+                    exclude: /\.dev/,
+                    type: 'asset/resource'
+                }
             ]
-        }) 
-    ],
-    output: {
-        publicPath: config.dev.dist.host
-    }
-});
+        },
+        optimization: {
+            minimize: true,
+            minimizer: [
+                new CssMinimizerPlugin(),
+                new TerserPlugin({
+                    test: /\.js(\?.*)?$/i
+                })
+            ]
+        },
+        plugins: [
+            new ESLintPlugin({
+                extensions: ['js'],
+                exclude: ['/node_modules/', '/\.dev/'],
+                formatter: 'stylish'
+            }),
+            new RemoveEmptyScriptsPlugin(),
+            new ImageMinimizerPlugin({
+                exclude: /dev/,
+                test: /\.(jpe?g|png|gif|svg)$/,
+                minimizerOptions: {
+                    plugins: [
+                        ['gifsicle'],
+                        ['mozjpeg'],
+                        ['pngquant'],
+                        [
+                            'svgo',
+                            {
+                                plugins: [
+                                    {
+                                        name: "cleanupIDs",
+                                        active: false 
+                                    }
+                                ]
+                            }
+                        ]
+                    ]
+                }
+            }),
+            new CopyWebpackPlugin({
+                patterns: [
+                    { from: './src/app/images', to: 'images' },
+                    { from: './src/app/translations/', to: 'translations/' },
+                    { from: './src/app/config.json', transform: transform },
+                ]
+            }) 
+        ],
+        output: {
+            publicPath: config.dev.dist.host
+        }
+    })
+};
