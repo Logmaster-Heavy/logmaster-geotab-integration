@@ -1,36 +1,22 @@
 
-//IMPORTANT
-//START: change these when deploying to staging/prod
-export const mainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
-export const mainBusinessParentUID = 'XeqTkJ5VUnWFYWK7bKWXeQ58yLF3';
+export const mainPartnerUID = global.mainPartnerUID;
+export const mainBusinessParentUID = global.mainBusinessParentUID;
 export function getParentUid () {
   if(loggedInUser.isDriver) {
     return mainBusinessParentUID;
   }
   return mainPartnerUID;
 }
-export const contractDurationMongoId = '62bbcada9b8c495a93347323';
-export const billingPeriodMongoId = '62bbcada9b8c495a93347319';
+export const contractDurationMongoId = global.contractDurationMongoId;
+export const billingPeriodMongoId = global.billingPeriodMongoId;
 
-export const businessParentOfDriverMongoId = '624f0935f07b702b6d33e9a6';
-export const prodBusinessParentOfDriverMongoId = '62e325af331dfc140368ec9f';
+export const businessParentOfDriverMongoId = global.businessParentOfDriverMongoId;
 
-export const prodMainPartnerUID = 'NLDvYreN2bUTOKcRSJPSKnFtHJX2';
-export const prodMainBusinessParentUID = '1EisNqacnIgQuHMaRNtUwDjjyH83';
-export const prodContractDurationMongoId = '62c1c30c7db5cd6fb8a7e7ef';
-export const prodBillingPeriodMongoId = '62c1c30b7db5cd6fb8a7e7e9';
-
-export const devBaseLogmasterURL = 'http://localhost:8080';
-export const devBaseAPIURL = 'http://localhost:3005';
+// export const localBaseLogmasterURL = 'http://localhost:8080';
+export const baseLogmasterURL = global.baseLogmasterURL;
+export const baseAPIURL = global.baseAPIURL;
 
 export const logmasterK = '41Od9TB4o02AVy';
-
-// export const prodBaseLogmasterURL = 'https://logmaster.au';
-// export const prodBaseLogmasterAPIURL = 'https://prod-api.logmaster.au'
-
-export const prodBaseLogmasterURL = 'https://logmaster-aus-sandbox-z626q6mhla-ts.a.run.app';
-export const prodBaseLogmasterAPIURL = 'https://sandbox-api-au.logmaster.shop'
-//END: change these when deploying to staging/prod
 
 export const cookieUidCname = 'external-login-uid';
 

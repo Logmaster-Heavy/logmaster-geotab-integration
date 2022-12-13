@@ -32,10 +32,19 @@ Database
 
     Logmaster
 ```
+### Deploying to Geotab STEP 1: Compiles and minifies for sandbox
+```
+npm run build:sandbox
+```
+
+### Deploying to Geotab STEP 1: Compiles and minifies for staging
+```
+npm run build:staging
+```
 
 ### Deploying to Geotab STEP 1: Compiles and minifies for production
 ```
-npm run build
+npm run build:production
 ```
 
 
