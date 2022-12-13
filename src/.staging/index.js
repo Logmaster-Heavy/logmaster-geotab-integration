@@ -4,9 +4,9 @@
  * (css/images/js/etc)
  */
 
-global.environment = 'production';
-global.baseLogmasterURL = 'https://logmaster.au';
-global.baseAPIURL = 'https://prod-api.logmaster.au';
+global.environment = 'staging';
+global.baseLogmasterURL = 'https://logmaster-portal-v2-staging-wnpopgn6qq-ts.a.run.app';
+global.baseAPIURL = 'https://staging-api.logmaster.au';
 global.mainPartnerUID = 'NLDvYreN2bUTOKcRSJPSKnFtHJX2';
 global.mainBusinessParentUID = '1EisNqacnIgQuHMaRNtUwDjjyH83';
 global.contractDurationMongoId = '62c1c30c7db5cd6fb8a7e7ef';
@@ -18,8 +18,8 @@ const regeneratorRuntime = require('regenerator-runtime');
 
 if(!geotab.addin.logmasterEwd2){
     
-    require('./scripts/main');
-
+    require('../app/scripts/main');
+    
 }
 
-require('./styles/main.css');
+require('../app/styles/main.css');
