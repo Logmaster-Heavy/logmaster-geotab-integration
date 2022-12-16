@@ -1,13 +1,12 @@
-import { ajaxInit } from './service/ajax/ajax-helper';
-import { getBaseLogmasterAPIURL, getBaseLogmasterURL } from './service/api/services';
+import { ajaxFetch } from './service/ajax/ajax-helper';
+import { getBaseLogmasterAPIURL } from './service/api/services';
 import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, logmasterK, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails } from './core/core-variables';
+import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails } from './core/core-variables';
 import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
-import { getAllGeotabVehicles } from './service/vehicles/vehicles';
 import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
-import { checkEmailTheSameAsSavedUID, loginUsingUID } from './service/user/user';
+import { loginUsingUID } from './service/user/user';
 
 
 /**
@@ -16,40 +15,60 @@ import { checkEmailTheSameAsSavedUID, loginUsingUID } from './service/user/user'
 geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   'use strict';
 
-  let getParentDetails = function () {
+  let getParentDetails = async function () {
     let endpoint = 'partner';
-    if(loggedInUser.isDriver){
+    if (loggedInUser.isDriver) {
       endpoint = 'business';
     }
-    console.log('endpoint', endpoint);
-    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/' + endpoint + '/find-one-by-uid/' + getParentUid(),
-      function () {
-        // onload
-        setMainParentDetails(this.response.data);
-        console.log('parent details fetched', mainParentDetails);
-        if (loggedInUser.isDriver) {
-          checkDriverEmailAlreadyExists();
-        } else {
-          //business
-          checkBusinessEmailAlreadyExists();
-        }
-      },
-      function () {
-        console.log('error fetching parent', this.response);
+    try {
+      console.log('endpoint', endpoint);
+      let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/' + endpoint + '/find-one-by-uid/' + getParentUid(), null, mainParentAccessToken);
+      setMainParentDetails(response.data);
+      console.log('parent details fetched', mainParentDetails);
+      if (loggedInUser.isDriver) {
+        //driver
+        checkDriverEmailAlreadyExists();
+      } else {
+        //business
+        checkBusinessEmailAlreadyExists();
+      }
+    } catch (error) {
+      console.log('error finding partner', error);
+      displayLogmasterUILastStep();
+    }
+  };
+  let checkFirstIfEmailTheSameAsSavedUID = async function () {
+    try {
+      let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/find-by-email', {
+        'email': loggedInUser.name
+      }, mainParentAccessToken);
+      console.log('email fetch result', response);
+      if(response.data.uid == getCookie(cookieUidCname)){
+        console.log('email logged in is the same');
         displayLogmasterUILastStep();
-      },
-      mainParentAccessToken)
-      .send();
+      } else {
+        console.log('email logged in NOT the same');
+        await getParentDetails();
+      }
+    } catch (error) {
+      console.log('error checking email', error);
+      displayLogmasterUILastStep();
+    }
   };
-  let checkFirstIfEmailTheSameAsSavedUID = function () {
-    checkEmailTheSameAsSavedUID(loggedInUser.name, getParentDetails);
-  };
-  
-  let syncLoggedInUserToLogmaster = function () {
-    loginUsingUID(getParentUid(), checkFirstIfEmailTheSameAsSavedUID, setMainParentAccessToken);
+
+  let syncLoggedInUserToLogmaster = async function () {
+    try {
+      let response = await loginUsingUID(getParentUid());
+      console.log('accessTokenSetter fetched');
+      setMainParentAccessToken(response.data.accessToken);
+      await checkFirstIfEmailTheSameAsSavedUID();
+    } catch (error) {
+      console.log('error logging in parent', error);
+      displayLogmasterUILastStep();
+    }
     //loginUsingUID(getParentUid(), getParentDetails);
   };
-  let getGroupOfLoggedInUser = function (groupId) {
+  let getGroupOfLoggedInUser =  function (groupId) {
     api.call('Get', {
       typeName: 'Group',
       search: {
@@ -98,7 +117,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
           console.log('logged in user', loggedInUser);
 
           if (loggedInUser.companyGroups.length > 0) {
-            setCompanyGroups(loggedInUser.companyGroups.map (function (group) {
+            setCompanyGroups(loggedInUser.companyGroups.map(function (group) {
               return {
                 id: group.id
               }
@@ -131,6 +150,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       // if (freshState.translate) {
       //   freshState.translate(elAddin || '');
       // }
+      if(global.environment == 'production'){
+        console.log = function() {}
+      }
       console.log('global.state', global.environment);
       // MUST call initializeCallback when done any setup
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
