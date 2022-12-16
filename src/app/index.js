@@ -3,7 +3,7 @@
  * Include any assets to be bundled in here
  * (css/images/js/etc)
  */
-
+// console.log = function() {}
 global.environment = 'production';
 global.baseLogmasterURL = 'https://logmaster.au';
 global.baseAPIURL = 'https://prod-api.logmaster.au';

@@ -1,34 +1,14 @@
 import { METHODS } from '../../constants/method-constants';
 import { api, businessAdminSecurityRole, businessLoggedInAccessToken, businessRole, businessUID, businessUsersToSync, companyGroups, cookieUidCname, loggedInBusiness, loggedInUser, mainParentAccessToken, setBusinessAdminSecurityRole, setBusinessLoggedInAccessToken, setBusinessRole, setBusinessUID, setBusinessUsersToSync } from '../../core/core-variables';
-import { ajaxInit } from '../ajax/ajax-helper';
+import { ajaxFetch } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
 import { deleteCookie, getCookie, setCookie } from '../utils/cookies-service';
 
-export function checkEmailTheSameAsSavedUID(email, callBackFunctionAfter) {
-    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/find-by-email',
-        function () {
-            //onload
-            console.log('email fetch result', this.response);
-            if(this.response.success && this.response.data.uid == getCookie(cookieUidCname)){
-                //if email is the same uid
-                console.log('email is the same as uid');
-                displayLogmasterUILastStep();
-            } else {
-                console.log('email is NOT the same as uid');
-                callBackFunctionAfter();
-            }
-        },
-        function () {
-            //onerror
-            console.log('error on checking email', this.response);
-            displayLogmasterUILastStep();
-        },
-        mainParentAccessToken)
-        .send(JSON.stringify({
-            'email': email
-        }));
-
+export async function checkEmailTheSameAsSavedUID(email, callBackFunctionAfter) {
+    return ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/find-by-email',{
+        'email': email
+    },mainParentAccessToken);
 }
 
 export function getBusinessUIDFromWebProfile(userToUse) {
@@ -48,67 +28,40 @@ export function getBusinessUIDFromWebProfile(userToUse) {
     }
     displayLogmasterUILastStep();
 }
-export function loginUsingUID(uid, callBackAfterLogin, accessTokenSetter) {
+export async function loginUsingUID(uid) {
     console.log('start logging in parent');
-    let onLoadFunc = function () {
-        accessTokenSetter(this.response.data.accessToken);
-        //setMainParentAccessToken(this.response.data.accessToken);
-        console.log('accessTokenSetter fetched');
-        callBackAfterLogin();
-    };
-    let onErrorFunc = function () {
-        console.log('error signing in partner', this.response);
-        displayLogmasterUILastStep();
-    };
-    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/auth/signin-via-token',
-        onLoadFunc,
-        onErrorFunc)
-        .send(JSON.stringify({
-            uid: uid
-        }));
+    return ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/auth/signin-via-token', {
+        uid: uid
+    });
 };
 
-export function getBusinessSecurityRoles (){
-    ajaxInit(METHODS.GET, getBaseLogmasterAPIURL() + '/security-role',
-        function () {
-            //onload
-            if(this.response.success){
-                let roles = this.response.data;
-                console.log('fetchedRoles', roles);
-                let adminRole = roles.find(function (singleRole) {
-                    return singleRole.isAdmin && singleRole.name == 'Admin'
-                });
-                if(adminRole){
-                    console.log('adminRole found');
-                    setBusinessAdminSecurityRole(adminRole._id);
-                    getUsersFromGeotab();
-                } else {
-                    console.log('adminRole not found');
-                }
-            } else {
-                console.log('error on fetching security roles', this.response);
-            }
-        },
-        function () {
-            //onerror
-            console.log('non http error fetching roles', this.response);
-        },
-        businessLoggedInAccessToken)
-        .send();
+export async function getBusinessSecurityRoles (){
+    try {
+        let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/security-role', null, businessLoggedInAccessToken);
+        let roles = response.data;
+        console.log('fetchedRoles', roles);
+        let adminRole = roles.find(function (singleRole) {
+            return singleRole.isAdmin && singleRole.name == 'Admin'
+        });
+        if(adminRole){
+            console.log('adminRole found');
+            setBusinessAdminSecurityRole(adminRole._id);
+            getUsersFromGeotab();
+        } else {
+            console.log('adminRole not found');
+        }
+    } catch (error) {
+        console.log('error on fetching security roles', error);
+    }
 }
 
-export function syncAllUsersToLogmaster () {
-    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/create-multiple',
-        function () {
-            //onload
-            console.log('success users syncing', this.response.message);
-        },
-        function () {
-            //onerror
-            console.log('error in syncing users', this.response);
-        },
-        businessLoggedInAccessToken)
-        .send(JSON.stringify(businessUsersToSync));
+export async function syncAllUsersToLogmaster () {
+    try {
+        let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/create-multiple', businessUsersToSync, businessLoggedInAccessToken);
+        console.log('success users syncing', response.message);   
+    } catch (error) {
+        console.log('error in syncing users', error);
+    }
 }
 
 export function getUsersFromGeotab(){
@@ -147,7 +100,13 @@ export function getUsersFromGeotab(){
     });
 }
 
-export function startSyncingUsersToLogmaster() {
+export async function startSyncingUsersToLogmaster() {
     let uid = getCookie(cookieUidCname);
-    loginUsingUID(uid, getBusinessSecurityRoles, setBusinessLoggedInAccessToken);
+    try {
+        let response = await loginUsingUID(uid, getBusinessSecurityRoles, setBusinessLoggedInAccessToken);
+        setBusinessLoggedInAccessToken(response.data.accessToken);
+        await getBusinessSecurityRoles();
+    } catch (error) {
+        console.log('error logging in parent', error);
+    }
 }

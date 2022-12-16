@@ -2,21 +2,35 @@
  * 
  * @param {*} method 
  * @param {*} url 
- * @param {*} onLoadFunc 
- * @param {*} onErrorFunc 
- * @param {*} bearerToken null by default, if has value then it will attach it as Authorization Bearer Token 
- * @returns ajax instance
+ * @param {*} data default null, pass null if not needed
+ * @param {*} bearerToken default null, pass null if not needed
+ * @returns 
  */
-export function ajaxInit(method, url, onLoadFunc, onErrorFunc, bearerToken) {
-    const ajax = new XMLHttpRequest();
-    ajax.onload = onLoadFunc;
-    ajax.onerror = onErrorFunc;
-    ajax.open(method, url);
-    ajax.responseType = 'json';
-    ajax.setRequestHeader('Content-type', 'application/json');
-    ajax.setRequestHeader('Accept', 'application/json, text/plain, */*');
+export async function ajaxFetch(method, url, data = null, bearerToken = null) {
+    let headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/plain, */*'
+    };
     if(bearerToken){
-        ajax.setRequestHeader('Authorization', 'Bearer ' + bearerToken);
+        headers['Authorization'] = 'Bearer ' + bearerToken;
     }
-    return ajax;
-};
+    let request = {
+        method: method,
+        headers: headers
+    };
+    if(data){
+        request['body'] = JSON.stringify(data);
+    }
+    const response = await (await fetch(url, request)).json();
+    if(response.error){
+        console.log('response.json()', response);
+        if(response.message){
+            if(response.message.length > 0){
+                throw response.message.pop();
+            }
+        }
+        throw error;
+    }
+
+    return response;
+}
