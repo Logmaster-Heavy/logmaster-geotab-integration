@@ -1,6 +1,6 @@
 import { METHODS } from '../../constants/method-constants';
 import { billingPeriodMongoId, businessContractMongoId, businessUID, contractDurationMongoId, cookieUidCname, defaultPassword, loggedInBusiness, loggedInUser, mainParentAccessToken, partnerRRP, setBusinessContractMongoId, setBusinessUID, setLoggedInBusiness } from '../../core/core-variables';
-import { ajaxInit } from '../ajax/ajax-helper';
+import { ajaxFetch } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { getAllGeotabDrivers } from '../driver/driver';
 import { getAllActiveRRP, getAllContractModuleMasters } from '../standard-pricing/business-standard-pricing';
@@ -9,12 +9,9 @@ import { getBusinessUIDFromWebProfile, startSyncingUsersToLogmaster } from '../u
 import { getAllGeotabVehicles } from '../vehicles/vehicles';
 
 
-export function fetchPartnerRRP () {
-    getAllActiveRRP(createBusinessFromGeotab);
-};
-export function createBusinessFromGeotab() {
+export async function createBusinessFromGeotab() {
     let businessName = loggedInUser.firstName;
-    if(loggedInUser.lastName != ''){
+    if (loggedInUser.lastName != '') {
         businessName += ' ' + loggedInUser.lastName;
     }
     let businessDetails = {
@@ -33,28 +30,22 @@ export function createBusinessFromGeotab() {
         externalSiteId: loggedInUser.id.trim()
     };
     console.log('business-body', businessDetails);
-    let onLoadFunc = function () {
-        if (this.status == 201) {
+    try {
+        let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business', businessDetails, mainParentAccessToken);
+        if (response.statusCode == 201) {
             console.log('business created');
             setLoggedInBusiness(this.response.data);
-            createBusinessContract();
+            await createBusinessContract();
         } else {
             console.log('error in business create', this.response);
             displayLogmasterUILastStep();
-        }
-    };
-    let onErrorFunc = function () {
-        // handle non-HTTP error (e.g. network down)
-        console.log('non http error', this.response);
+        }   
+    } catch (error) {
+        console.log('non http error', error);
         displayLogmasterUILastStep()
-    };
-    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/business',
-        onLoadFunc,
-        onErrorFunc,
-        mainParentAccessToken)
-        .send(JSON.stringify(businessDetails).trim());
+    }
 };
-export function createBusinessContract() {
+export async function createBusinessContract() {
     let mainBusinessContractDetails = {
         billingPeriodId: billingPeriodMongoId,
         businessMongoId: loggedInBusiness._id,
@@ -62,108 +53,95 @@ export function createBusinessContract() {
         contractDurationId: contractDurationMongoId,
         contractDurationYears: 0
     };
-    console.log('business contract', mainBusinessContractDetails);
-    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/business-contract/business-contract',
-        function () {
-            //on load
-            setBusinessContractMongoId(this.response.data._id);
-            console.log('business default contract created sucessfully', businessContractMongoId);
-            acceptBusinessContract();
-        },
-        function () {
-            //on error
-            console.log('error on create business contract', this.response);
-            displayLogmasterUILastStep();
-        },
-        mainParentAccessToken)
-        .send(JSON.stringify(mainBusinessContractDetails));
+    try {
+        console.log('business contract', mainBusinessContractDetails);
+        let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business-contract/business-contract', mainBusinessContractDetails, mainParentAccessToken);
+        setBusinessContractMongoId(response.data._id);
+        console.log('business default contract created sucessfully', businessContractMongoId);
+        acceptBusinessContract();   
+    } catch (error) {
+        console.log('error on create business contract', error);
+        displayLogmasterUILastStep();
+    }
 };
-export function acceptBusinessContract() {
-    ajaxInit(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business-contract/accept/' + businessContractMongoId,
-        function () {
-            //onload
-            console.log('business contract accepted');
-            createBussinesPassword();
-        },
-        function () {
-            //on error
-            console.log('error on accept business contract', this.response);
-            displayLogmasterUILastStep();
-        })
-        .send(JSON.stringify({
+export async function acceptBusinessContract() {
+    try {
+        let response = await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business-contract/accept/' + businessContractMongoId, {
             remarks: 'Auto-approved'
-        }));
+        });
+        console.log('business contract accepted');
+        createBussinesPassword();   
+    } catch (error) {
+        console.log('error on accept business contract', error);
+        displayLogmasterUILastStep();
+    }
 };
-export function updateLogmasterDataWithGeoTab() {
-    loggedInBusiness['externalSiteId'] = loggedInUser.id;
-    ajaxInit(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business/' + loggedInBusiness._id,
-        function () {
-            // onload
-            console.log('business external id updated from geotab');
-            checkBusinessEmailAlreadyExists();
-        },
-        function () {
-            // on error
-            console.log('error update business external id', this.response);
-        },
-        mainParentAccessToken)
-        .send(JSON.stringify(loggedInBusiness));
+export async function updateLogmasterDataWithGeoTab() {
+    try {
+        loggedInBusiness['externalSiteId'] = loggedInUser.id;
+        let response = await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business/' + loggedInBusiness._id, loggedInBusiness, mainParentAccessToken);
+        console.log('business external id updated from geotab');
+        await checkBusinessEmailAlreadyExists();
+    } catch (error) {
+        console.log('error updating business', error);
+        displayLogmasterUILastStep();
+    }
 };
-export function checkBusinessEmailAlreadyExists() {
-    ajaxInit(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email',
-        function () {
-            //on load
-            console.log('checking business existence', this.response);
-            if (this.response.success) {
-                setLoggedInBusiness(this.response.data);
-                console.log('business already created', loggedInBusiness);
-                if (loggedInBusiness.externalSiteId) {
-                    //geotab already synced
-                    //asynchronously sync vehicles
-                    getAllGeotabVehicles();
-                    //async sync driver
-                    getAllGeotabDrivers();
-                    getBusinessUIDFromWebProfile(loggedInBusiness);
-                    //async sync all users that are not drivers after setting
-                    startSyncingUsersToLogmaster();
-                } else {
-                    //update logmaster with geotab specific data
-                    updateLogmasterDataWithGeoTab();
-                }
-                /**
-                 * Set cookie business.uid 
-                 * name of cookie: external-login-uid
-                 * sa portal-v2 page, kukunin yung cookie na yun, para auto login
-                 * tapos redirect sa bagong page ex: Business -> Driver page
-                 * yung laman ng Business driver page are Drivers under sa nakalogin na user
-                 * update Readme
-                 */
-            } else {
-                getAllContractModuleMasters(fetchPartnerRRP);
-            }
-        },
-        function () {
-
-        },
-        mainParentAccessToken)
-        .send(JSON.stringify({
+export async function checkBusinessEmailAlreadyExists() {
+    try {
+        let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email', {
             emailAddress: loggedInUser.name
-        }));
+        }, mainParentAccessToken);
+        console.log('checking business existence', response);
+        if (response.success) {
+            setLoggedInBusiness(response.data);
+            console.log('business already created', loggedInBusiness);
+            if (loggedInBusiness.externalSiteId) {
+                //geotab already synced
+                //asynchronously sync vehicles
+                getAllGeotabVehicles();
+                //async sync driver
+                getAllGeotabDrivers();
+                getBusinessUIDFromWebProfile(loggedInBusiness);
+                //async sync all users that are not drivers after setting
+                startSyncingUsersToLogmaster();
+            } else {
+                //update logmaster with geotab specific data
+                await updateLogmasterDataWithGeoTab();
+            }
+            /**
+             * Set cookie business.uid 
+             * name of cookie: external-login-uid
+             * sa portal-v2 page, kukunin yung cookie na yun, para auto login
+             * tapos redirect sa bagong page ex: Business -> Driver page
+             * yung laman ng Business driver page are Drivers under sa nakalogin na user
+             * update Readme
+             */
+        } else {
+            let moduleMasterResponse = await getAllContractModuleMasters();
+            if(moduleMasterResponse){
+                let rrpResponse = await getAllActiveRRP();
+                if(rrpResponse) {
+                    await createBusinessFromGeotab();
+                }
+            }
+        }
+    } catch (error) {
+        console.log('error checking business email', email);
+        displayLogmasterUILastStep();
+    }
 };
-export function createBussinesPassword() {
+export async function createBussinesPassword() {
     let passwordPayload = {
         'password': defaultPassword,
         'confirmPassword': defaultPassword
     };
-    ajaxInit(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business/create-password/' + loggedInBusiness._id,
-        function () {
-            //onload
-            console.log('password created');
-            checkBusinessEmailAlreadyExists();
-        },
-        function () {
-            console.log('error create password', this.response);
-            displayLogmasterUILastStep();
-        })
-        .send(JSON.stringify(passwordPayload));
+    try {
+        let response = await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/business/create-password/' + loggedInBusiness._id, passwordPayload);
+        console.log('password created');
+        checkBusinessEmailAlreadyExists();   
+    } catch (error) {
+        console.log('error create password', this.response);
+        displayLogmasterUILastStep();
+    }
 }
