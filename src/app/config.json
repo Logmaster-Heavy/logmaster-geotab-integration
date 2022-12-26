@@ -142,6 +142,14 @@
         "en": "Form Setup"
       },
       "svgIcon": "dist/images/icon.svg"
+    },
+    {
+      "path": "BusinessAdminPage/",
+      "url": "dist/adminFatigueCompliancePage.html",
+      "menuName": {
+        "en": "Fatigue Compliance"
+      },
+      "svgIcon": "dist/images/icon.svg"
     }
   ],
   "dev": {
