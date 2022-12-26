@@ -113,6 +113,13 @@ module.exports = {
             chunks: 'all',
             filename: './adminReportSetupPage.html'
         }),
+        new HtmlWebPackPlugin({
+            
+            template: './src/app/pages/adminFatigueCompliancePage.html',
+            inject: true,
+            chunks: 'all',
+            filename: './adminFatigueCompliancePage.html'
+        }),
     ],
     output: {
         path: path.resolve(__dirname, 'dist'),
