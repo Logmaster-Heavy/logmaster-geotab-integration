@@ -59,7 +59,7 @@
       "path": "BusinessReportsPage/",
       "url": "dist/reportNHVRCompliancePage.html",
       "menuName": {
-        "en": "NHVR Compliance"
+        "en": "Compliance"
       },
       "svgIcon": "dist/images/icon.svg"
     },
@@ -67,7 +67,7 @@
       "path": "BusinessReportsPage/",
       "url": "dist/reportNHVRBreachesPage.html",
       "menuName": {
-        "en": "NHVR Breaches"
+        "en": "Breaches"
       },
       "svgIcon": "dist/images/icon.svg"
     },
