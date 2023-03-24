@@ -29,7 +29,6 @@ export function getBusinessUIDFromWebProfile(userToUse) {
     displayLogmasterUILastStep();
 }
 export async function loginUsingUID(uid) {
-    console.log('start logging in parent');
     return ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/auth/signin-via-token', {
         uid: uid
     });
@@ -104,6 +103,7 @@ export async function startSyncingUsersToLogmaster() {
     let uid = getCookie(cookieUidCname);
     try {
         let response = await loginUsingUID(uid, getBusinessSecurityRoles, setBusinessLoggedInAccessToken);
+        console.log('startSyncingUsersToLogmaster accessToken: ', response.data.accessToken);
         setBusinessLoggedInAccessToken(response.data.accessToken);
         await getBusinessSecurityRoles();
     } catch (error) {

@@ -42,7 +42,13 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/find-by-email', {
         'email': loggedInUser.name
       }, mainParentAccessToken);
-      console.log('email fetch result', response);
+
+      if (!getCookie(cookieUidCname)) {
+        setCookie(cookieUidCname, response.data.uid, 0.008)
+      }
+
+      console.log('response.data.uid: ', response.data.uid);
+      console.log('getCookie(cookieUidCname): ', getCookie(cookieUidCname));
       if(response.data.uid == getCookie(cookieUidCname)){
         console.log('email logged in is the same');
         displayLogmasterUILastStep();
@@ -59,7 +65,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   let syncLoggedInUserToLogmaster = async function () {
     try {
       let response = await loginUsingUID(getParentUid());
-      console.log('accessTokenSetter fetched');
+      console.log('syncLoggedInUserToLogmaster accessToken: ', response.data.accessToken);
       setMainParentAccessToken(response.data.accessToken);
       await checkFirstIfEmailTheSameAsSavedUID();
     } catch (error) {
@@ -75,7 +81,6 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         id: groupId
       }
     }, function (fetchedGroup) {
-      console.log('fetchedGroup', fetchedGroup);
       if (fetchedGroup.length > 0) {
         let group = fetchedGroup[0];
         let initChildrenGroups = group.children;
@@ -88,7 +93,6 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
               id: child.id
             }
           }));
-          console.log('children of group', childrenGroups);
           syncLoggedInUserToLogmaster();
         } else {
           displayLogmasterUILastStep();
@@ -108,13 +112,11 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
           name: currentUser
         }
       }, function (result) {
-        console.log('result from getSession', result);
         if (result.length === 0) {
           console.log('Unable to find currently logged on user.');
           displayLogmasterUILastStep();
         } else {
           setLoggedInUser(result[0]);
-          console.log('logged in user', loggedInUser);
 
           if (loggedInUser.companyGroups.length > 0) {
             setCompanyGroups(loggedInUser.companyGroups.map(function (group) {
@@ -122,7 +124,6 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
                 id: group.id
               }
             }));
-            console.log('companyGroups', companyGroups);
             getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
           } else {
             console.log('logged in user does not belong to a group');
@@ -146,20 +147,10 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      *        for display to the user.
      */
     initialize: function (freshApi, freshState, initializeCallback) {
-      // Loading translations if available
-      // if (freshState.translate) {
-      //   freshState.translate(elAddin || '');
-      // }
-      if(global.environment == 'production'){
-        console.log = function() {}
-      }
-      console.log('global.state', global.environment);
-      // MUST call initializeCallback when done any setup
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       setAPI(mainGeotabAPI);
+      // MUST call initializeCallback when done any setup
       setFinishCallback(initializeCallback);
-      const currentUid = getCookie(cookieUidCname);
-      console.log('cookieUidCname onnit ', getCookie(cookieUidCname));
       getLoggedInUser();
     },
 
@@ -178,21 +169,10 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       deleteCookie(cookieMainURICname);
       setCookie(cookieMainURICname, mainLogmasterURI);
-      console.log('cookieMainURICName', mainLogmasterURI);
       let currentSRC = document.getElementById('logmaster-main-iframe').src;
-      console.log('currentSRC', currentSRC);
       if (currentSRC != mainLogmasterURI) {
         changeIframeURI('focus');
       }
-      // getting the current user to display in the UI
-      // freshApi.getSession(session => {
-      //   elAddin.querySelector('#logmasterEwd2-user').textContent = session.userName;
-      // });
-
-
-      // elAddin.className = '';
-      // show main content
-
     },
 
     /**
