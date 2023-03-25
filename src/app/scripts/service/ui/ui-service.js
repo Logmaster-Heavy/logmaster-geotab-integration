@@ -18,12 +18,15 @@ export function changeIframeURI (source) {
             geotabLogmasterURL += `/${uriSplitted.shift()}`;
         }
     }
+    const targetUidFromCookie = getCookie(cookieUidCname);
+    console.log('targetUidFromCookie: (changeIframeURI)', targetUidFromCookie);
     //append the accountId
-    geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(getCookie(cookieUidCname), logmasterK).toString())}`;
+    geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(targetUidFromCookie, logmasterK).toString())}`;
 
     //append remaining
     uriSplitted.forEach((value, index, arr) => {
         geotabLogmasterURL += `/${value}`;
     });
+    console.log('geotabLogmasterURL: ', geotabLogmasterURL);
     document.getElementById('logmaster-main-iframe').src = geotabLogmasterURL
 }

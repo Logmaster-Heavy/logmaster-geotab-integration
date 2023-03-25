@@ -43,13 +43,14 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         'email': loggedInUser.name
       }, mainParentAccessToken);
 
-      if (!getCookie(cookieUidCname)) {
-        setCookie(cookieUidCname, response.data.uid, 0.008)
-      }
+      deleteCookie(cookieUidCname);
+      setCookie(cookieUidCname, response.data.uid, 0.008)
+
+      const targetUidFromCookie = getCookie(cookieUidCname);
 
       console.log('response.data.uid: ', response.data.uid);
-      console.log('getCookie(cookieUidCname): ', getCookie(cookieUidCname));
-      if(response.data.uid == getCookie(cookieUidCname)){
+      console.log('targetUidFromCookie: ', targetUidFromCookie);
+      if(response.data.uid == targetUidFromCookie){
         console.log('email logged in is the same');
         displayLogmasterUILastStep();
       } else {
@@ -67,6 +68,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       let response = await loginUsingUID(getParentUid());
       console.log('syncLoggedInUserToLogmaster accessToken: ', response.data.accessToken);
       setMainParentAccessToken(response.data.accessToken);
+      setCookie('accessToken', response.data.accessToken);
       await checkFirstIfEmailTheSameAsSavedUID();
     } catch (error) {
       console.log('error logging in parent', error);
