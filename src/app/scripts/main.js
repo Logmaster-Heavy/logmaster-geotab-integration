@@ -180,8 +180,6 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      * @param {object} freshState - The page state object allows access to URL, page navigation and global group filter.
     */
     blur: function () {
-      // Remove geotab cookie in order to maintain portal sidebar when using logmaster portal.
-      deleteCookie(cookieIsGeotabAccountCname);
     }
   };
 };
