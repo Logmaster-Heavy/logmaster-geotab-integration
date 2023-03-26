@@ -21,9 +21,6 @@ export function getAllGeotabVehicles() {
                 externalEntityId: loggedInUser.id
             }
         }));
-        //window.sessionStorage.loggedInUserVehicles = JSON.stringify(loggedInUserVehicles);
-        //console.log('vehicle session storage', JSON.parse(window.sessionStorage.loggedInUserVehicles));
-        console.log('loggedInUserVehicles', loggedInUserVehicles);
         syncAllGeotabVehiclesToLogmaster();
         //callbackFunction();
     }, function (err) {
@@ -35,7 +32,6 @@ export async function syncAllGeotabVehiclesToLogmaster() {
     console.log('start syncing vehicles to logmaster');
     try {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/vehicle/create-multiple', loggedInUserVehicles, mainParentAccessToken);
-        console.log(response.message);
     } catch (error) {
         console.log('error syncing vehicles to logmaster', error);
     }

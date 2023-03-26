@@ -29,7 +29,6 @@ export async function createBusinessFromGeotab() {
         demoOption: 'NO_DEMO',
         externalSiteId: loggedInUser.id.trim()
     };
-    console.log('business-body', businessDetails);
     try {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business', businessDetails, mainParentAccessToken);
         if (response.statusCode == 201) {
@@ -54,7 +53,6 @@ export async function createBusinessContract() {
         contractDurationYears: 0
     };
     try {
-        console.log('business contract', mainBusinessContractDetails);
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business-contract/business-contract', mainBusinessContractDetails, mainParentAccessToken);
         setBusinessContractMongoId(response.data._id);
         console.log('business default contract created sucessfully', businessContractMongoId);
@@ -92,7 +90,6 @@ export async function checkBusinessEmailAlreadyExists() {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email', {
             emailAddress: loggedInUser.name
         }, mainParentAccessToken);
-        console.log('checking business existence', response);
         if (response.success) {
             setLoggedInBusiness(response.data);
             console.log('business already created', loggedInBusiness);

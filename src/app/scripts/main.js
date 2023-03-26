@@ -21,10 +21,8 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       endpoint = 'business';
     }
     try {
-      console.log('endpoint', endpoint);
       let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/' + endpoint + '/find-one-by-uid/' + getParentUid(), null, mainParentAccessToken);
       setMainParentDetails(response.data);
-      console.log('parent details fetched', mainParentDetails);
       if (loggedInUser.isDriver) {
         //driver
         checkDriverEmailAlreadyExists();
@@ -48,8 +46,6 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
 
       const targetUidFromCookie = getCookie(cookieUidCname);
 
-      console.log('response.data.uid: ', response.data.uid);
-      console.log('targetUidFromCookie: ', targetUidFromCookie);
       if(response.data.uid == targetUidFromCookie){
         console.log('email logged in is the same');
         displayLogmasterUILastStep();
@@ -66,9 +62,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   let syncLoggedInUserToLogmaster = async function () {
     try {
       let response = await loginUsingUID(getParentUid());
-      console.log('syncLoggedInUserToLogmaster accessToken: ', response.data.accessToken);
       setMainParentAccessToken(response.data.accessToken);
-      setCookie('accessToken', response.data.accessToken);
       await checkFirstIfEmailTheSameAsSavedUID();
     } catch (error) {
       console.log('error logging in parent', error);

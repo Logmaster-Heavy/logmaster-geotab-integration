@@ -15,16 +15,11 @@ export function getBusinessUIDFromWebProfile(userToUse) {
     let mainWebProfile = userToUse.webProfiles.find(function (profile) {
         return profile.isRoot == true;
     });
-    console.log('mainWebProfile', mainWebProfile);
     if (mainWebProfile) {
         setBusinessUID(mainWebProfile.uid);
-        console.log('businessUID', businessUID);
         setBusinessRole(mainWebProfile.parentRole);
-        console.log('businessRole', businessRole);
         deleteCookie(cookieUidCname);
-        console.log('delete cookieUidCname');
         setCookie(cookieUidCname, businessUID, 0.008);
-        console.log('cookie set', getCookie(cookieUidCname));
     }
     displayLogmasterUILastStep();
 }
@@ -38,7 +33,6 @@ export async function getBusinessSecurityRoles (){
     try {
         let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/security-role', null, businessLoggedInAccessToken);
         let roles = response.data;
-        console.log('fetchedRoles', roles);
         let adminRole = roles.find(function (singleRole) {
             return singleRole.isAdmin && singleRole.name == 'Admin'
         });
@@ -57,7 +51,6 @@ export async function getBusinessSecurityRoles (){
 export async function syncAllUsersToLogmaster () {
     try {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/create-multiple', businessUsersToSync, businessLoggedInAccessToken);
-        console.log('success users syncing', response.message);   
     } catch (error) {
         console.log('error in syncing users', error);
     }
@@ -71,11 +64,9 @@ export function getUsersFromGeotab(){
             isDriver: false
         }
     }, function (fetchedUsers) {
-        console.log('fetchedUsers', fetchedUsers);
         let connectedUsers = fetchedUsers.filter(function (user) {
             return !(user.isDriver || user.name == loggedInUser.name);
         });
-        console.log('only users', connectedUsers);
         let usersToSyncToLogmaster = connectedUsers.map (function (user)  {
             let fullName = user.firstName;
             if(user.lastName != ''){
@@ -91,7 +82,6 @@ export function getUsersFromGeotab(){
               }
         });
         setBusinessUsersToSync(usersToSyncToLogmaster);
-        console.log('usersToSyncToLogmaster', usersToSyncToLogmaster);
         syncAllUsersToLogmaster();
         //callbackFunction();
     }, function (err) {
@@ -103,7 +93,6 @@ export async function startSyncingUsersToLogmaster() {
     let uid = getCookie(cookieUidCname);
     try {
         let response = await loginUsingUID(uid, getBusinessSecurityRoles, setBusinessLoggedInAccessToken);
-        console.log('startSyncingUsersToLogmaster accessToken: ', response.data.accessToken);
         setBusinessLoggedInAccessToken(response.data.accessToken);
         await getBusinessSecurityRoles();
     } catch (error) {

@@ -19,7 +19,6 @@ export function changeIframeURI (source) {
         }
     }
     const targetUidFromCookie = getCookie(cookieUidCname);
-    console.log('targetUidFromCookie: (changeIframeURI)', targetUidFromCookie);
     //append the accountId
     geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(targetUidFromCookie, logmasterK).toString())}`;
 
@@ -27,6 +26,5 @@ export function changeIframeURI (source) {
     uriSplitted.forEach((value, index, arr) => {
         geotabLogmasterURL += `/${value}`;
     });
-    console.log('geotabLogmasterURL: ', geotabLogmasterURL);
     document.getElementById('logmaster-main-iframe').src = geotabLogmasterURL
 }
