@@ -2,7 +2,7 @@ import { ajaxFetch } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from './service/api/services';
 import { checkBusinessEmailAlreadyExists } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails } from './core/core-variables';
+import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails, cookieIsGeotabAccountCname } from './core/core-variables';
 import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverEmailAlreadyExists } from './service/driver/driver';
 import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
@@ -180,8 +180,8 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      * @param {object} freshState - The page state object allows access to URL, page navigation and global group filter.
     */
     blur: function () {
-      // hide main content
-      // elAddin.className += ' hidden';
+      // Remove geotab cookie in order to maintain portal sidebar when using logmaster portal.
+      deleteCookie(cookieIsGeotabAccountCname);
     }
   };
 };
