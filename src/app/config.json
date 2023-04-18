@@ -2,6 +2,7 @@
   "name": "Logmaster EWD2",
   "supportEmail": "admin@logmaster.com.au",
   "version": "0.0.1",
+  "key": "logmasterLogmaster",
   "items": [
     {
       "path": "ActivityLink",
