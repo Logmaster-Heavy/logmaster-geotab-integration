@@ -43,7 +43,6 @@ const entry_point = function (env) {
 }
 
 module.exports = function (env) {
-    console.log(env);
     return merge(common, {
         mode: 'production',
         entry: entry_point(env),

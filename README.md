@@ -9,28 +9,9 @@ npm install
 ```
 npm run serve
 ```
-### LOGIN credentials:
+### credentials:
 ```
-Admin
-
-    lm.demo@mailinator.com
-
-    Password1!
-
-Driver
-
-    lm.driver@mailinator.com
-
-    Password1!
-
-
-Server
-
-    https://my1623.geotab.com/
-
-Database
-
-    Logmaster
+Use your geotab credentials to access the geotab portal.
 ```
 ### Deploying to Geotab STEP 1: Compiles and minifies for sandbox
 ```
@@ -50,7 +31,7 @@ npm run build:production
 
 ### Deploying to Geotab STEP 2 and beyond
 
-Login to https://my1623.geotab.com/ using one of the Admin credentials above.
+Login to geotab's live portal using your credentials above.
 
 ![geotab-login.png](images/readme/geotab-login.png)
 

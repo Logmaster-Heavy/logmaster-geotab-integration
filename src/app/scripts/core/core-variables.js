@@ -24,6 +24,8 @@ export const cookieMainURICname = 'geotab-portal-v2-uri'
 
 export const defaultPassword = 'Password1!';
 
+export const cookieIsGeotabAccountCname = 'isGeotabAccount'
+
 export let mainLogmasterURI;
 export function setMainLogmasterURI (mainLogmasterURIValue) {
   mainLogmasterURI = mainLogmasterURIValue;

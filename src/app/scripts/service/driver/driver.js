@@ -31,7 +31,6 @@ export function generateDriverDetails (user, parentExternalSiteId) {
 
 export async function createDriverFromGeotab() {
     let driverDetails = generateDriverDetails(loggedInUser);
-    console.log('driver details', driverDetails);
     try {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver', driverDetails, mainParentAccessToken);
         if(response.success){
@@ -60,7 +59,6 @@ export async function updateLogmasterDataWithGeoTab() {
 export async function checkDriverEmailAlreadyExists() {
     try {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver/find-by-email', { emailAddress: loggedInUser.name }, mainParentAccessToken);
-        console.log('checking driver existence', response);
         if (response.success) {
             setLoggedInDriver(response.data);
             console.log('driver already exists', loggedInDriver);
@@ -99,7 +97,6 @@ export async function syncAllGeotabDriversToLogmaster() {
     console.log('start syncing drivers to logmaster');
     try {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver/create-multiple', connectedDrivers, mainParentAccessToken);
-        console.log(response.message);   
     } catch (error) {
         console.log('error syncing solo drivers to logmaster', error);
     }
@@ -113,7 +110,6 @@ export function getAllGeotabDrivers() {
             isDriver: true
         }
     }, function (fetchedDrivers) {
-        console.log('fetchedDrivers', fetchedDrivers);
         setConnectedDrivers(fetchedDrivers.map (function (driver)  {
             return generateDriverDetails(driver, loggedInUser.id);
         }));

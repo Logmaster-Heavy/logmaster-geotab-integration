@@ -9,7 +9,6 @@ export async function getAllContractModuleMasters () {
     try {
         let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/contract-module-master', null, mainParentAccessToken);
         setContractModuleMasters(response.data);
-        console.log('contract module masters', contractModuleMasters);
         return true
     } catch (error) {
         console.log('failed contract module masters', error);
@@ -21,7 +20,6 @@ export async function getAllContractModuleMasters () {
 export async function getAllActiveRRP () {
     try {
         let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/standard-pricing/find-all-active-rrp-to-business/' + mainParentDetails._id, null, mainParentAccessToken);
-        console.log('partner rrp fetched', response.data);
         setPartnerRRP(response.data.map(function (partnerRRP) {
             let contractModuleMaster = contractModuleMasters.find(function (module) {
                 return module.apiTag == partnerRRP.standardPricingMaster.apiTag
