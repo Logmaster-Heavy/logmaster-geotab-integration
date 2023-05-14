@@ -19,18 +19,22 @@ export async function getAllContractModuleMasters () {
 
 export async function getAllActiveRRP () {
     try {
-        let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/standard-pricing/find-all-active-rrp-to-business/' + mainParentDetails._id, null, mainParentAccessToken);
-        setPartnerRRP(response.data.map(function (partnerRRP) {
-            let contractModuleMaster = contractModuleMasters.find(function (module) {
-                return module.apiTag == partnerRRP.standardPricingMaster.apiTag
+        const response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/standard-pricing/find-all-active-rrp-to-business/' + mainParentDetails._id, null, mainParentAccessToken);
+        setPartnerRRP(response.data.map((partnerRRP) => {
+            const { standardPricingMaster: { apiTag }, pricing: { monthly } } = partnerRRP;
+            const contractModuleMaster = contractModuleMasters.find((module) => {
+                return module.apiTag == apiTag
             });
+            const { _id: masterId } = contractModuleMaster;
             return {
-                masterId: contractModuleMaster._id,
+                masterId,
                 minimums: 0,
                 price: {
-                    monthly: partnerRRP.pricing.monthly,
+                    monthly: Number(monthly),
                     yearly: 0
-                }
+                },
+                ownerMongoId: null, // to be updated after business creation
+                ownerRole: 'business'
             }
         }));
         console.log('partnerRRP applied', partnerRRP);

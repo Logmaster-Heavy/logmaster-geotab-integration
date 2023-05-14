@@ -11,8 +11,9 @@ export async function checkEmailTheSameAsSavedUID(email, callBackFunctionAfter) 
     },mainParentAccessToken);
 }
 
-export function getBusinessUIDFromWebProfile(userToUse) {
-    let mainWebProfile = userToUse.webProfiles.find(function (profile) {
+// entity could be either business or driver
+export function getUIDFromWebProfile(entity) {
+    let mainWebProfile = entity.webProfiles.find(function (profile) {
         return profile.isRoot == true;
     });
     if (mainWebProfile) {
@@ -25,49 +26,41 @@ export function getBusinessUIDFromWebProfile(userToUse) {
 }
 export async function loginUsingUID(uid) {
     return ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/auth/signin-via-token', {
-        uid: uid
+        uid
     });
 };
 
-export async function getBusinessSecurityRoles (){
+export async function getBusinessAdminRole (){
     try {
-        let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/security-role', null, businessLoggedInAccessToken);
-        let roles = response.data;
-        let adminRole = roles.find(function (singleRole) {
-            return singleRole.isAdmin && singleRole.name == 'Admin'
+        const response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/security-role', null, businessLoggedInAccessToken);
+        const adminRole = response.data.find(function (role) {
+            return role.isAdmin;
         });
         if(adminRole){
-            console.log('adminRole found');
             setBusinessAdminSecurityRole(adminRole._id);
-            getUsersFromGeotab();
+            return true;
         } else {
-            console.log('adminRole not found');
+            console.log('adminRole not found. Abort syncing users.');
+            return false;
         }
     } catch (error) {
-        console.log('error on fetching security roles', error);
+        console.log('getBusinessAdminRole: error on fetching security roles', error);
+        return false;
     }
 }
 
-export async function syncAllUsersToLogmaster () {
-    try {
-        let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/create-multiple', businessUsersToSync, businessLoggedInAccessToken);
-    } catch (error) {
-        console.log('error in syncing users', error);
-    }
-}
-
-export function getUsersFromGeotab(){
+export function getUsersFromGeotabAndSyncToLogmaster(){
     api.call('Get', {
         typeName: 'User',
         search: {
             companyGroups: companyGroups,
             isDriver: false
         }
-    }, function (fetchedUsers) {
-        let connectedUsers = fetchedUsers.filter(function (user) {
+    }, async function (fetchedUsers) {
+        const connectedUsers = fetchedUsers.filter(function (user) {
             return !(user.isDriver || user.name == loggedInUser.name);
         });
-        let usersToSyncToLogmaster = connectedUsers.map (function (user)  {
+        const usersToSyncToLogmaster = connectedUsers.map (function (user)  {
             let fullName = user.firstName;
             if(user.lastName != ''){
                 fullName += ' ' + user.lastName;
@@ -82,20 +75,27 @@ export function getUsersFromGeotab(){
               }
         });
         setBusinessUsersToSync(usersToSyncToLogmaster);
-        syncAllUsersToLogmaster();
-        //callbackFunction();
+        try {
+            await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/create-multiple', businessUsersToSync, businessLoggedInAccessToken);
+            console.log('users sync completed');
+        } catch (error) {
+            console.log('getUsersFromGeotabAndSyncToLogmaster: error in syncing users', error);
+        }
     }, function (err) {
         console.log('error in driver fetch', err);
     });
 }
 
-export async function startSyncingUsersToLogmaster() {
+export async function syncUsersToLogmaster() {
     let uid = getCookie(cookieUidCname);
     try {
-        let response = await loginUsingUID(uid, getBusinessSecurityRoles, setBusinessLoggedInAccessToken);
+        const response = await loginUsingUID(uid);
         setBusinessLoggedInAccessToken(response.data.accessToken);
-        await getBusinessSecurityRoles();
+        const adminRole = await getBusinessAdminRole();
+        if (adminRole) {
+            getUsersFromGeotabAndSyncToLogmaster();
+        }
     } catch (error) {
-        console.log('error logging in parent', error);
+        console.log('syncUsersToLogmaster: error logging in parent', error);
     }
 }
