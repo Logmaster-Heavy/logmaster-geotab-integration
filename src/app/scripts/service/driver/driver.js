@@ -1,10 +1,9 @@
-import { async } from 'regenerator-runtime';
 import { METHODS, STATES } from '../../constants/method-constants';
-import { api, businessParentOfDriverMongoId, businessRole, businessUID, companyGroups, connectedDrivers, defaultPassword, loggedInBusiness, loggedInDriver, loggedInUser, mainParentAccessToken, setConnectedDrivers, setLoggedInDriver } from '../../core/core-variables';
+import { api, businessParentOfDriverMongoId, businessRole, businessUID, companyGroups, connectedDrivers, defaultPassword, loggedInDriver, loggedInUser, mainParentAccessToken, setConnectedDrivers, setLoggedInDriver } from '../../core/core-variables';
 import { ajaxFetch } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { displayLogmasterUILastStep } from '../ui/ui-service';
-import { getBusinessUIDFromWebProfile } from '../user/user';
+import { getUIDFromWebProfile } from '../user/user';
 
 export function generateDriverDetails (user, parentExternalSiteId) {
     let driverName = user.firstName.trim();
@@ -35,10 +34,9 @@ export async function createDriverFromGeotab() {
         let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver', driverDetails, mainParentAccessToken);
         if(response.success){
             setLoggedInDriver(response.data)
-            console.log('driver created', loggedInDriver);
             createDriverPassword();
         } else {
-            console.log('error creating driver', response);
+            console.log('createDriverFromGeotab: error creating driver', response);
             displayLogmasterUILastStep();
         }
     } catch (error) {
@@ -46,35 +44,33 @@ export async function createDriverFromGeotab() {
         displayLogmasterUILastStep();
     }
 }
-export async function updateLogmasterDataWithGeoTab() {
+export async function updateExternalSiteIdLogmaster() {
     loggedInDriver['externalSiteId'] = loggedInUser.id;
     try {
-        let response = await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/solo-driver/' + loggedInDriver._id, loggedInDriver, mainParentAccessToken);
-        console.log('driver external id updated from geotab');
-        checkDriverEmailAlreadyExists();   
+        await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/solo-driver/' + loggedInDriver._id, loggedInDriver, mainParentAccessToken);;
+        await checkDriverEmailAlreadyExists();   
     } catch (error) {
-        console.log('error update driver external id', error);
+        console.log('updateExternalSiteIdLogmaster: error update driver external id', error);
     }
 }
-export async function checkDriverEmailAlreadyExists() {
+export async function checkDriverExistenceAndCreateDriver() {
     try {
-        let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver/find-by-email', { emailAddress: loggedInUser.name }, mainParentAccessToken);
+        const response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver/find-by-email', { emailAddress: loggedInUser.name }, mainParentAccessToken);
+        // Driver exists
         if (response.success) {
             setLoggedInDriver(response.data);
-            console.log('driver already exists', loggedInDriver);
+
             if (loggedInDriver.externalSiteId) {
-                //geotab already synced
-                console.log('already sync to geotab');
-                getBusinessUIDFromWebProfile(loggedInDriver);
+                getUIDFromWebProfile(loggedInDriver);
             } else {
-                await updateLogmasterDataWithGeoTab();
+                await updateExternalSiteIdLogmaster();
             }
         } else {
-            console.log('solo driver not yet created', response);
+            console.log('solo driver not yet created')
             createDriverFromGeotab();
         }
     } catch (error) {
-        console.log('error http driver check', error);
+        console.log('checkDriverEmailAlreadyExists: error http driver check', error);
         displayLogmasterUILastStep();
     }
 }
@@ -84,8 +80,7 @@ export async function createDriverPassword() {
         'confirmPassword': defaultPassword
     };
     try {
-        let response = await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/solo-driver/create-password/' + loggedInDriver._id, passwordPayload);
-        console.log('password created');
+        await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/solo-driver/create-password/' + loggedInDriver._id, passwordPayload);
         checkDriverEmailAlreadyExists();
     } catch (error) {   
         console.log('error create password', this.response);
@@ -93,29 +88,23 @@ export async function createDriverPassword() {
     }
 }
 
-export async function syncAllGeotabDriversToLogmaster() {
-    console.log('start syncing drivers to logmaster');
-    try {
-        let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver/create-multiple', connectedDrivers, mainParentAccessToken);
-    } catch (error) {
-        console.log('error syncing solo drivers to logmaster', error);
-    }
-};
-
-export function getAllGeotabDrivers() {
+export function syncGeotabDriversToLogmaster() {
     api.call('Get', {
         typeName: 'User',
         search: {
             companyGroups: companyGroups,
             isDriver: true
         }
-    }, function (fetchedDrivers) {
+    }, async function (fetchedDrivers) {
         setConnectedDrivers(fetchedDrivers.map (function (driver)  {
             return generateDriverDetails(driver, loggedInUser.id);
         }));
-        console.log('connectedDrivers', connectedDrivers);
-        syncAllGeotabDriversToLogmaster();
-        //callbackFunction();
+        try {
+            await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/solo-driver/create-multiple', connectedDrivers, mainParentAccessToken);
+            console.log('drivers sync completed');
+        } catch (error) {
+            console.log('syncGeotabDriversToLogmaster: error syncing solo drivers to logmaster', error);
+        }
     }, function (err) {
         console.log('error in driver fetch', err);
     });

@@ -3,10 +3,10 @@ import { getBaseLogmasterURL } from '../api/services';
 import { getCookie } from '../utils/cookies-service';
 
 export function displayLogmasterUILastStep() {
-    changeIframeURI('last step');
+    changeIframeURI();
     finishCallback();
 };
-export function changeIframeURI (source) {
+export function changeIframeURI () {
     let uriSplitted = mainLogmasterURI.split('/');
     let geotabLogmasterURL = `${getBaseLogmasterURL()}/geotab`;
     

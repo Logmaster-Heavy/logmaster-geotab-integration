@@ -1,10 +1,10 @@
 import { ajaxFetch } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from './service/api/services';
-import { checkBusinessEmailAlreadyExists } from './service/business/business';
+import { checkBusinessExistenceAndCreateContract } from './service/business/business';
 import { METHODS } from './constants/method-constants';
 import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails, cookieIsGeotabAccountCname } from './core/core-variables';
 import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-service';
-import { checkDriverEmailAlreadyExists } from './service/driver/driver';
+import { checkDriverExistenceAndCreateDriver } from './service/driver/driver';
 import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
 import { loginUsingUID } from './service/user/user';
 
@@ -15,60 +15,55 @@ import { loginUsingUID } from './service/user/user';
 geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   'use strict';
 
-  let getParentDetails = async function () {
-    let endpoint = 'partner';
-    if (loggedInUser.isDriver) {
-      endpoint = 'business';
-    }
+  let getParentData = async function () {
+    const endpoint = loggedInUser.isDriver? 'business': 'partner';
     try {
-      let response = await ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/' + endpoint + '/find-one-by-uid/' + getParentUid(), null, mainParentAccessToken);
-      setMainParentDetails(response.data);
-      if (loggedInUser.isDriver) {
-        //driver
-        checkDriverEmailAlreadyExists();
-      } else {
-        //business
-        checkBusinessEmailAlreadyExists();
-      }
+     return ajaxFetch(METHODS.GET, getBaseLogmasterAPIURL() + '/' + endpoint + '/find-one-by-uid/' + getParentUid(), null, mainParentAccessToken);
     } catch (error) {
       console.log('error finding partner', error);
       displayLogmasterUILastStep();
     }
   };
-  let checkFirstIfEmailTheSameAsSavedUID = async function () {
+  let checkIfUserLoggedInRecently = async () => {
     try {
-      let response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/find-by-email', {
+      const response = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/web-profile/find-by-email', {
         'email': loggedInUser.name
       }, mainParentAccessToken);
 
-      deleteCookie(cookieUidCname);
-      setCookie(cookieUidCname, response.data.uid, 0.008)
-
       const targetUidFromCookie = getCookie(cookieUidCname);
 
-      if(response.data.uid == targetUidFromCookie){
-        console.log('email logged in is the same');
+      if(targetUidFromCookie && targetUidFromCookie === response.data.uid){
+        console.log('User has logged in recently, skipping sync.');
         displayLogmasterUILastStep();
       } else {
-        console.log('email logged in NOT the same');
-        await getParentDetails();
+        deleteCookie(cookieUidCname);
+        setCookie(cookieUidCname, response.data.uid, 0.008)
+        const parentsData = await getParentData();
+        setMainParentDetails(parentsData.data);
+        if (loggedInUser.isDriver) {
+          console.log('Driver hasn\'t logged in recently, starting sync.');
+          await checkDriverExistenceAndCreateDriver();
+        } else {
+          console.log('Business hasn\'t logged in recently, starting sync.');
+          await checkBusinessExistenceAndCreateContract();
+        }
+        console.log('Sync completed');
       }
     } catch (error) {
-      console.log('error checking email', error);
+      console.log('checkIfUserLoggedInRecently: error fetching user from logmaster', error);
       displayLogmasterUILastStep();
     }
   };
 
   let syncLoggedInUserToLogmaster = async function () {
     try {
-      let response = await loginUsingUID(getParentUid());
+      const response = await loginUsingUID(getParentUid());
       setMainParentAccessToken(response.data.accessToken);
-      await checkFirstIfEmailTheSameAsSavedUID();
+      await checkIfUserLoggedInRecently();
     } catch (error) {
-      console.log('error logging in parent', error);
+      console.log('syncLoggedInUserToLogmaster: error logging in', error);
       displayLogmasterUILastStep();
     }
-    //loginUsingUID(getParentUid(), getParentDetails);
   };
   let getGroupOfLoggedInUser =  function (groupId) {
     api.call('Get', {
@@ -77,54 +72,50 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         id: groupId
       }
     }, function (fetchedGroup) {
-      if (fetchedGroup.length > 0) {
-        let group = fetchedGroup[0];
-        let initChildrenGroups = group.children;
-        initChildrenGroups.push({
-          id: group.id
-        });
-        if (initChildrenGroups.length > 0) {
-          setChildrenGroups(initChildrenGroups.map(function (child) {
-            return {
-              id: child.id
-            }
-          }));
-          syncLoggedInUserToLogmaster();
-        } else {
-          displayLogmasterUILastStep();
-        }
-      } else {
+      if (fetchedGroup.length === 0) {
         console.log('no groups found');
         displayLogmasterUILastStep();
+        return;
       }
+
+      const group = fetchedGroup[0];
+      const {children, id} = group;
+      const initChildrenGroups = children;
+      initChildrenGroups.push({ id });
+      setChildrenGroups(initChildrenGroups.map(function (child) {
+        return { id: child.id }
+      }));
+
+      // Step #3 - Final
+      syncLoggedInUserToLogmaster();
     });
   };
   let getLoggedInUser = function () {
     api.getSession(function (session) {
-      let currentUser = session.userName;
       api.call('Get', {
         typeName: 'User',
         search: {
-          name: currentUser
+          name: session.userName
         }
       }, function (result) {
         if (result.length === 0) {
-          console.log('Unable to find currently logged on user.');
+          console.log('Unable to find currently logged in user.');
           displayLogmasterUILastStep();
-        } else {
-          setLoggedInUser(result[0]);
+          return;
+        }
 
-          if (loggedInUser.companyGroups.length > 0) {
-            setCompanyGroups(loggedInUser.companyGroups.map(function (group) {
-              return {
-                id: group.id
-              }
-            }));
-            getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
-          } else {
-            console.log('logged in user does not belong to a group');
-            displayLogmasterUILastStep();
-          }
+        setLoggedInUser(result[0]);
+        if (loggedInUser.companyGroups.length > 0) {
+          setCompanyGroups(loggedInUser.companyGroups.map(function (group) {
+            return {
+              id: group.id
+            }
+          }));
+          // Step #2
+          getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
+        } else {
+          console.log('logged in user does not belong to a group');
+          displayLogmasterUILastStep();
         }
       });
     });
@@ -142,12 +133,13 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      *        might be doing asynchronous operations, you must call this method when the Add-In is ready
      *        for display to the user.
      */
-    initialize: function (freshApi, freshState, initializeCallback) {
+    initialize: async function (freshApi, freshState, initializeCallback) {
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       setAPI(mainGeotabAPI);
       // MUST call initializeCallback when done any setup
       setFinishCallback(initializeCallback);
-      getLoggedInUser();
+      // Step #1
+      getLoggedInUser()
     },
 
     /**
@@ -167,7 +159,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setCookie(cookieMainURICname, mainLogmasterURI);
       let currentSRC = document.getElementById('logmaster-main-iframe').src;
       if (currentSRC != mainLogmasterURI) {
-        changeIframeURI('focus');
+        changeIframeURI();
       }
     },
 
