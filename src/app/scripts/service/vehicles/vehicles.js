@@ -22,12 +22,13 @@ export async function syncGeotabVehiclesToLogmaster() {
     async function (fetchedVehicles) {
       try {
         setLoggedInUserVehicles(
-          fetchedVehicles.map(function (vehicle) {
+          fetchedVehicles.map((vehicle) => {
+            const {licensePlate, vehicleIdentificationNumber, comment, serialNumber} = vehicle;
             return {
-              vehiclePlate: vehicle.licensePlate,
-              VIN: vehicle.vehicleIdentificationNumber,
-              comments: vehicle.comment,
-              fleetId: vehicle.id,
+              vehiclePlate: licensePlate,
+              VIN: vehicleIdentificationNumber,
+              comments: comment,
+              fleetId: serialNumber,
               externalEntityId: loggedInUser.id,
             };
           })
