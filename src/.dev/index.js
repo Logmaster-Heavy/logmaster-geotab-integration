@@ -24,14 +24,14 @@ global.geotab = {
 }
 // Importing the app rules -> Where addin will be described
 
-global.environment = 'production';
-global.baseLogmasterURL = 'https://logmaster.au';
-global.baseAPIURL = 'https://prod-api.logmaster.au';
-global.mainPartnerUID = 'NLDvYreN2bUTOKcRSJPSKnFtHJX2';
-global.mainBusinessParentUID = '1EisNqacnIgQuHMaRNtUwDjjyH83';
-global.contractDurationMongoId = '62c1c30c7db5cd6fb8a7e7ef';
-global.billingPeriodMongoId = '62c1c30b7db5cd6fb8a7e7e9';
-global.businessParentOfDriverMongoId = '62e325af331dfc140368ec9f';
+global.environment = 'local';
+global.baseLogmasterURL = 'http://localhost:8080';
+global.baseAPIURL = 'http://localhost:3005';
+global.mainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
+global.mainBusinessParentUID = 'XeqTkJ5VUnWFYWK7bKWXeQ58yLF3';
+global.contractDurationMongoId = '62bbcada9b8c495a93347323';
+global.billingPeriodMongoId = '62bbcada9b8c495a93347319';
+global.businessParentOfDriverMongoId = '624f0935f07b702b6d33e9a6';
 
 
 require('../app/scripts/main');
