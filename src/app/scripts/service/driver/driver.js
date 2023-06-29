@@ -48,7 +48,7 @@ export async function updateExternalSiteIdLogmaster() {
     loggedInDriver['externalSiteId'] = loggedInUser.id;
     try {
         await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/solo-driver/' + loggedInDriver._id, loggedInDriver, mainParentAccessToken);;
-        await checkDriverEmailAlreadyExists();   
+        await checkDriverExistenceAndCreateDriver();
     } catch (error) {
         console.log('updateExternalSiteIdLogmaster: error update driver external id', error);
     }
@@ -70,7 +70,7 @@ export async function checkDriverExistenceAndCreateDriver() {
             createDriverFromGeotab();
         }
     } catch (error) {
-        console.log('checkDriverEmailAlreadyExists: error http driver check', error);
+        console.log('checkDriverExistenceAndCreateDriver: error http driver check', error);
         displayLogmasterUILastStep();
     }
 }
@@ -81,7 +81,7 @@ export async function createDriverPassword() {
     };
     try {
         await ajaxFetch(METHODS.PATCH, getBaseLogmasterAPIURL() + '/solo-driver/create-password/' + loggedInDriver._id, passwordPayload);
-        checkDriverEmailAlreadyExists();
+        await checkDriverExistenceAndCreateDriver();
     } catch (error) {   
         console.log('error create password', this.response);
         displayLogmasterUILastStep();

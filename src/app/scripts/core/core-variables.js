@@ -2,7 +2,7 @@
 export const mainPartnerUID = global.mainPartnerUID;
 export const mainBusinessParentUID = global.mainBusinessParentUID;
 export function getParentUid () {
-  if(loggedInUser.isDriver) {
+  if(loggedInUser && loggedInUser.isDriver) {
     return mainBusinessParentUID;
   }
   return mainPartnerUID;
@@ -16,6 +16,7 @@ export const businessParentOfDriverMongoId = global.businessParentOfDriverMongoI
 export const baseLogmasterURL = global.baseLogmasterURL;
 export const baseAPIURL = global.baseAPIURL;
 
+// Passphrase
 export const logmasterK = '41Od9TB4o02AVy';
 
 export const cookieUidCname = 'external-login-uid';
@@ -39,6 +40,21 @@ export function setAPI (apiValue) {
 export let loggedInUser;
 export function setLoggedInUser (loggedInUserValue) {
   loggedInUser = loggedInUserValue;
+}
+
+export let serviceAccountUser;
+export function setServiceAccountUser (serviceAccountValue) {
+  serviceAccountUser = serviceAccountValue;
+}
+
+export let serverName;
+export function setServerName (serverNameValue) {
+  serverName = serverNameValue;
+}
+
+export let databaseName;
+export function setDatabaseName (databaseNameValue) {
+  databaseName = databaseNameValue;
 }
 
 export let mainParentAccessToken;

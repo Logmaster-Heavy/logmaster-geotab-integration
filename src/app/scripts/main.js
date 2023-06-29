@@ -2,7 +2,7 @@ import { ajaxFetch } from './service/ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from './service/api/services';
 import { checkBusinessExistenceAndCreateContract } from './service/business/business';
 import { METHODS } from './constants/method-constants';
-import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails, cookieIsGeotabAccountCname } from './core/core-variables';
+import { api, childrenGroups, companyGroups, cookieMainURICname, cookieUidCname, getParentUid, loggedInUser, mainLogmasterURI, mainParentAccessToken, mainParentDetails, setAPI, setChildrenGroups, setCompanyGroups, setFinishCallback, setLoggedInUser, setMainLogmasterURI, setMainParentAccessToken, setMainParentDetails, cookieIsGeotabAccountCname, setServiceAccountUser, serviceAccountUser, setServerName, setDatabaseName } from './core/core-variables';
 import { changeIframeURI, displayLogmasterUILastStep } from './service/ui/ui-service';
 import { checkDriverExistenceAndCreateDriver } from './service/driver/driver';
 import { deleteCookie, getCookie, setCookie } from './service/utils/cookies-service';
@@ -54,17 +54,6 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       displayLogmasterUILastStep();
     }
   };
-
-  let syncLoggedInUserToLogmaster = async function () {
-    try {
-      const response = await loginUsingUID(getParentUid());
-      setMainParentAccessToken(response.data.accessToken);
-      await checkIfUserLoggedInRecently();
-    } catch (error) {
-      console.log('syncLoggedInUserToLogmaster: error logging in', error);
-      displayLogmasterUILastStep();
-    }
-  };
   let getGroupOfLoggedInUser =  function (groupId) {
     api.call('Get', {
       typeName: 'Group',
@@ -87,38 +76,70 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       }));
 
       // Step #3 - Final
-      syncLoggedInUserToLogmaster();
+      checkIfUserLoggedInRecently()
     });
   };
-  let getLoggedInUser = function () {
-    api.getSession(function (session) {
+  let getLoggedInUser = function () {   
+    api.getSession(function (session, server) {
       api.call('Get', {
         typeName: 'User',
         search: {
-          name: session.userName
+          name: null // get all users
         }
-      }, function (result) {
-        if (result.length === 0) {
+      }, async function (users) {
+        const {userName, database} = session;
+        
+        const serviceAccountName = `logmaster-service@${database}`;
+        if (users.length === 0) {
           console.log('Unable to find currently logged in user.');
+          return;
+        }
+
+        const targetServiceAccount = users.find((user)=> user.name === serviceAccountName);
+        const loggedInUser = users.find((user)=> user.name === userName);
+
+        const loginResponse = await loginUsingUID(getParentUid());
+        setMainParentAccessToken(loginResponse.data.accessToken);
+        setLoggedInUser(loggedInUser);
+
+        if (!targetServiceAccount) {
+          console.log('Service Account not created, please contact support.');
           displayLogmasterUILastStep();
           return;
         }
 
-        setLoggedInUser(result[0]);
-        if (loggedInUser.companyGroups.length > 0) {
-          setCompanyGroups(loggedInUser.companyGroups.map(function (group) {
-            return {
-              id: group.id
-            }
-          }));
-          // Step #2
-          getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
-        } else {
+        const businessResponse = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email', {
+          emailAddress: userName
+        }, mainParentAccessToken);
+
+        if (!businessResponse.success) {
+          console.log('Service Account not created, please contact support.');
+          displayLogmasterUILastStep();
+          return;
+        }
+
+        setServerName(server);
+        setDatabaseName(database);
+        setServiceAccountUser(targetServiceAccount)
+
+        if (loggedInUser && !loggedInUser.companyGroups.length) {
           console.log('logged in user does not belong to a group');
           displayLogmasterUILastStep();
+          return;
         }
+  
+        setCompanyGroups(
+          loggedInUser.companyGroups.map(function (group) {
+            return {
+              id: group.id,
+            };
+          })
+        );
+  
+        // Step #2
+        getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
       });
-    });
+  });
   };
 
   return {
@@ -139,7 +160,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       // MUST call initializeCallback when done any setup
       setFinishCallback(initializeCallback);
       // Step #1
-      getLoggedInUser()
+      getLoggedInUser();
     },
 
     /**
