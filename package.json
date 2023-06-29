@@ -6,7 +6,7 @@
   "scripts": {
     "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
     "build:template": "node ./utils/templateBuilder.js",
-      "template": "start-server-and-test serve http://localhost:9000 build:template",
+    "template": "start-server-and-test serve http://localhost:9000 build:template",
     "build:production": "webpack --env CORE_ENV=production --mode production --config webpack.production.js",
     "build:sandbox": "webpack --env CORE_ENV=dev --mode production --config webpack.production.js",
     "build:staging": "webpack --env CORE_ENV=staging --mode production --config webpack.production.js",

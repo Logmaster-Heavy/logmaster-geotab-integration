@@ -1,5 +1,5 @@
 import { METHODS } from '../../constants/method-constants';
-import { billingPeriodMongoId, businessContractMongoId, businessUID, contractDurationMongoId, cookieUidCname, defaultPassword, loggedInBusiness, loggedInUser, mainParentAccessToken, partnerRRP, setBusinessContractMongoId, setBusinessUID, setLoggedInBusiness, setPartnerRRP } from '../../core/core-variables';
+import { api, billingPeriodMongoId, businessContractMongoId, businessUID, contractDurationMongoId, cookieUidCname, databaseName, defaultPassword, loggedInBusiness, loggedInUser, logmasterK, mainParentAccessToken, partnerRRP, serverName, serviceAccountUser, setBusinessContractMongoId, setBusinessUID, setLoggedInBusiness, setPartnerRRP } from '../../core/core-variables';
 import { ajaxFetch } from '../ajax/ajax-helper';
 import { getBaseLogmasterAPIURL } from '../api/services';
 import { syncGeotabDriversToLogmaster } from '../driver/driver';
@@ -98,17 +98,38 @@ export async function checkBusinessExistenceAndCreateContract() {
         // Business exists
         if (response.success) {
             setLoggedInBusiness(response.data);
-            if (loggedInBusiness.externalSiteId) {
-                await Promise.all[
-                    syncGeotabVehiclesToLogmaster(),
-                    syncGeotabDriversToLogmaster(),
-                    getUIDFromWebProfile(loggedInBusiness)
-                ]
-                await syncUsersToLogmaster();
- 
-            } else {
-                await updateExternalSiteIdLogmaster();
+            const {externalSiteId, geotabCredentials} = loggedInBusiness
+            
+            if (!geotabCredentials) {
+                console.log('Geotab credentials for service account not set, please contact support');
+                displayLogmasterUILastStep();
+                return;
             }
+            const decryptedPassword = CryptoJS.AES.decrypt(geotabCredentials.serviceAccountPassword, logmasterK).toString(CryptoJS.enc.Utf8);
+            // Service Account login
+            api.call(
+                'Authenticate', {
+                    database: databaseName,
+                    userName: serviceAccountUser.name,
+                    password: decryptedPassword,
+                },
+                async () => {
+                console.log('Service account authenticated!');
+                if (externalSiteId) {
+                    await Promise.all[
+                        syncGeotabVehiclesToLogmaster(),
+                        syncGeotabDriversToLogmaster(),
+                        getUIDFromWebProfile(loggedInBusiness)
+                    ]
+                    await syncUsersToLogmaster();
+     
+                } else {
+                    await updateExternalSiteIdLogmaster();
+                }
+            }, (error)=>{
+                console.log('Service account authentication error: ', error);
+                displayLogmasterUILastStep();
+            })
             /**
              * Set cookie business.uid 
              * name of cookie: external-login-uid
@@ -127,7 +148,7 @@ export async function checkBusinessExistenceAndCreateContract() {
             }
         }
     } catch (error) {
-        console.log('checkBusinessExistenceAndCreateContract: error checking business email', email);
+        console.log('checkBusinessExistenceAndCreateContract: error checking business email', error);
         displayLogmasterUILastStep();
     }
 };
