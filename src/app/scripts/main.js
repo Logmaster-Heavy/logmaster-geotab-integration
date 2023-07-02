@@ -33,21 +33,22 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       const targetUidFromCookie = getCookie(cookieUidCname);
 
       if(targetUidFromCookie && targetUidFromCookie === response.data.uid){
-        console.log('User has logged in recently, skipping sync.');
+        // console.log('User has logged in recently, skipping sync.');
         displayLogmasterUILastStep();
       } else {
         deleteCookie(cookieUidCname);
         setCookie(cookieUidCname, response.data.uid, 0.008)
-        const parentsData = await getParentData();
-        setMainParentDetails(parentsData.data);
-        if (loggedInUser.isDriver) {
-          console.log('Driver hasn\'t logged in recently, starting sync.');
-          await checkDriverExistenceAndCreateDriver();
-        } else {
-          console.log('Business hasn\'t logged in recently, starting sync.');
-          await checkBusinessExistenceAndCreateContract();
-        }
-        console.log('Sync completed');
+        // const parentsData = await getParentData();
+        // setMainParentDetails(parentsData.data);
+        // if (loggedInUser.isDriver) {
+        //   console.log('Driver hasn\'t logged in recently, starting sync.');
+        //   await checkDriverExistenceAndCreateDriver();
+        // } else {
+        //   console.log('Business hasn\'t logged in recently, starting sync.');
+        //   await checkBusinessExistenceAndCreateContract();
+        // }
+        // console.log('Sync completed');
+        displayLogmasterUILastStep();
       }
     } catch (error) {
       console.log('checkIfUserLoggedInRecently: error fetching user from logmaster', error);

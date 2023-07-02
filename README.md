@@ -65,3 +65,10 @@ Similar to this:
 
 ### Customize configuration
 See [Configuration Reference](https://github.com/Geotab/generator-addin).
+
+
+### Deploying to Firebase Hosting
+1. Build project using `npm run build:production`
+2. Copy files from `dist` folder to `public` folder. (create a public folder, if its folder is not created yet.)
+3. Login to firebase using `firebase login`
+4. Deploy using `firebase deploy`
