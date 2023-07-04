@@ -122,14 +122,6 @@
     },
     {
       "path": "BusinessAdminPage/",
-      "url": "https://logmaster-australia.web.app/adminResponsibilitiesListPage.html",
-      "menuName": {
-        "en": "Responsibilities List"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessAdminPage/",
       "url": "https://logmaster-australia.web.app/adminDepotConfigurationPage.html",
       "menuName": {
         "en": "Depot Configuration"

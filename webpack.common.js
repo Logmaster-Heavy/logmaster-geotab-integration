@@ -94,13 +94,6 @@ module.exports = {
         }),
         new HtmlWebPackPlugin({
             
-            template: './src/app/pages/adminResponsibilitiesListPage.html',
-            inject: true,
-            chunks: 'all',
-            filename: './adminResponsibilitiesListPage.html'
-        }),
-        new HtmlWebPackPlugin({
-            
             template: './src/app/pages/adminDepotConfigurationPage.html',
             inject: true,
             chunks: 'all',
