@@ -90,24 +90,24 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       }, async function (users) {
         const {userName, database} = session;
         
-        const serviceAccountName = `logmaster-service@${database}`;
-        if (users.length === 0) {
-          console.log('Unable to find currently logged in user.');
-          return;
-        }
+        // const serviceAccountName = `logmaster-service@${database}`;
+        // if (users.length === 0) {
+        //   console.log('Unable to find currently logged in user.');
+        //   return;
+        // }
 
-        const targetServiceAccount = users.find((user)=> user.name === serviceAccountName);
+        // const targetServiceAccount = users.find((user)=> user.name === serviceAccountName);
         const loggedInUser = users.find((user)=> user.name === userName);
 
         const loginResponse = await loginUsingUID(getParentUid());
         setMainParentAccessToken(loginResponse.data.accessToken);
         setLoggedInUser(loggedInUser);
 
-        if (!targetServiceAccount) {
-          console.log('Service Account not created, please contact support.');
-          displayLogmasterUILastStep();
-          return;
-        }
+        // if (!targetServiceAccount) {
+        //   console.log('Service Account not created, please contact support.');
+        //   displayLogmasterUILastStep();
+        //   return;
+        // }
 
         const businessResponse = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email', {
           emailAddress: userName
@@ -121,7 +121,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
 
         setServerName(server);
         setDatabaseName(database);
-        setServiceAccountUser(targetServiceAccount)
+        // setServiceAccountUser(targetServiceAccount)
 
         if (loggedInUser && !loggedInUser.companyGroups.length) {
           console.log('logged in user does not belong to a group');
