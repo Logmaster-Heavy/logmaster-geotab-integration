@@ -113,11 +113,14 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
           emailAddress: userName
         }, mainParentAccessToken);
 
-        if (!businessResponse.success) {
-          console.log('Service Account not created, please contact support.');
-          displayLogmasterUILastStep();
-          return;
-        }
+        // console.log('userName: ', userName);
+        // console.log('businessResponse: ', businessResponse);
+
+        // if (!businessResponse.success) {
+        //   console.log('Service Account not created, please contact support.');
+        //   displayLogmasterUILastStep();
+        //   return;
+        // }
 
         setServerName(server);
         setDatabaseName(database);
