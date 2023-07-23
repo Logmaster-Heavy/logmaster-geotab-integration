@@ -47,9 +47,6 @@ On the 'Configuration' Tab, Copy the contents from 'dist/config.json' file into 
 
 ![geotab-config.png](images/readme/geotab-config.png)
 
-On the 'Files' Tab, click on 'Add' button, then upload only the 'dist' folder
-
-![geotab-add-files.png](images/readme/geotab-add-files.png)
 
 Click 'Ok' button, then click on 'Save' on the upper left corner
 
@@ -72,3 +69,7 @@ See [Configuration Reference](https://github.com/Geotab/generator-addin).
 2. Copy files from `dist` folder to `public` folder. (create a public folder, if its folder is not created yet.)
 3. Login to firebase using `firebase login`
 4. Deploy using `firebase deploy`
+
+### Disabling Firebase Hosting
+1. Run `firebase hosting:disable`
+2. Navigate to firebase portal and delete deployment.
