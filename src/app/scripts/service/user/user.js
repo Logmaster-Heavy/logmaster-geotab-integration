@@ -71,7 +71,8 @@ export function getUsersFromGeotabAndSyncToLogmaster(){
                 userName: fullName,
                 phoneNumber: user.phoneNumber,
                 parentUid: getCookie(cookieUidCname),
-                parentRole: 'business'
+                parentRole: 'business',
+                externalEntityId: loggedInUser.id,
               }
         });
         setBusinessUsersToSync(usersToSyncToLogmaster);
