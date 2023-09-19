@@ -109,9 +109,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         //   return;
         // }
 
-        const businessResponse = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email', {
-          emailAddress: userName
-        }, mainParentAccessToken);
+        // const businessResponse = await ajaxFetch(METHODS.POST, getBaseLogmasterAPIURL() + '/business/find-by-email', {
+        //   emailAddress: userName
+        // }, mainParentAccessToken);
 
         // console.log('userName: ', userName);
         // console.log('businessResponse: ', businessResponse);
