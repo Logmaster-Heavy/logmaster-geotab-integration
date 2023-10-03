@@ -1,154 +1,18 @@
 {
-  "name": "Logmaster EWD2",
-  "supportEmail": "admin@logmaster.com.au",
-  "version": "0.0.1",
-  "key": "logmasterLogmaster",
-  "items": [
-    {
-      "path": "ActivityLink",
-      "menuId": "LogmasterRootMenu",
-      "menuName": {
-        "en": "Logmaster AU"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-logo.svg"
-    },
-    {
-      "path": "LogmasterRootMenu/",
-      "menuId": "DashboardBusinessPage",
-      "url": "https://logmaster-australia.web.app/businessDashboardPage.html",
-      "menuName": {
-        "en": "Dashboard"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-dashboard.svg"
-    },
-    {
-      "path": "LogmasterRootMenu/",
-      "menuId": "BusinessDriverPage",
-      "url": "https://logmaster-australia.web.app/businessDriverPage.html",
-      "menuName": {
-        "en": "Drivers"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-drivers.svg"
-    },
-    {
-      "path": "LogmasterRootMenu/",
-      "menuId": "BusinessManualEventsPage",
-      "url": "https://logmaster-australia.web.app/manualEventsPage.html",
-      "menuName": {
-        "en": "Manual Events"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-manual-events.svg"
-    },
-    {
-      "path": "LogmasterRootMenu/",
-      "menuId": "BusinessVehiclesPage",
-      "url": "https://logmaster-australia.web.app/vehiclesPage.html",
-      "menuName": {
-        "en": "Vehicles"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-vehicles.svg"
-    },
-    {
-      "path": "LogmasterRootMenu/",
-      "menuId": "BusinessReportsPage",
-      "menuName": {
-        "en": "Reports"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-reports.svg"
-    },
-    {
-      "path": "BusinessReportsPage/",
-      "url": "https://logmaster-australia.web.app/reportNHVRCompliancePage.html",
-      "menuName": {
-        "en": "Compliance"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessReportsPage/",
-      "url": "https://logmaster-australia.web.app/reportNHVRBreachesPage.html",
-      "menuName": {
-        "en": "Breaches"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessReportsPage/",
-      "url": "https://logmaster-australia.web.app/reportPreStartChecksPage.html",
-      "menuName": {
-        "en": "Pre-Start Checks"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessReportsPage/",
-      "url": "https://logmaster-australia.web.app/reportFitnessDeclarationsPage.html",
-      "menuName": {
-        "en": "Fitness Declarations"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessReportsPage/",
-      "url": "https://logmaster-australia.web.app/reportFormsReportPage.html",
-      "menuName": {
-        "en": "Forms Report"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "LogmasterRootMenu/",
-      "menuId": "BusinessAdminPage",
-      "menuName": {
-        "en": "Admin"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-admin.svg"
-    },
-    {
-      "path": "BusinessAdminPage/",
-      "url": "https://logmaster-australia.web.app/adminUserListPage.html",
-      "menuName": {
-        "en": "User List"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessAdminPage/",
-      "url": "https://logmaster-australia.web.app/adminRoleListPage.html",
-      "menuName": {
-        "en": "Role List"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessAdminPage/",
-      "url": "https://logmaster-australia.web.app/adminDepotConfigurationPage.html",
-      "menuName": {
-        "en": "Depot Configuration"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessAdminPage/",
-      "url": "https://logmaster-australia.web.app/adminReportSetupPage.html",
-      "menuName": {
-        "en": "Form Setup"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    },
-    {
-      "path": "BusinessAdminPage/",
-      "url": "https://logmaster-australia.web.app/adminFatigueCompliancePage.html",
-      "menuName": {
-        "en": "Fatigue Compliance"
-      },
-      "svgIcon": "https://logmaster-australia.web.app/images/icon.svg"
-    }
-  ],
-  "dev": {
-    "root": "logmasterEwd2",
-    "dist": {
-      "host": ""
-    }
-  }
+	"name": "Logmaster EWD2",
+	"supportEmail": "admin@logmaster.com.au",
+	"version": "0.0.1",
+	"items": [
+		{
+			"url": "https://logmaster-australia.web.app/businessDashboardPage.html",
+			"path": "ActivityLink",
+			"menuName": {
+				"en": "Logmaster AU"
+			},
+			"svgIcon": "https://logmaster-australia.web.app/images/geotab-logmaster-logo.svg",
+			"menuId": "LogmasterRootMenu"
+		}
+	],
+	"key": "logmasterLogmaster",
+	"isSigned": false
 }
