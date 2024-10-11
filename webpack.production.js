@@ -55,7 +55,7 @@ module.exports = function (env) {
                         {
                             loader: MiniCssExtractPlugin.loader,
                             options: {
-                                publicPath: config.dev.dist.host
+                                publicPath: ''
                             }
                         },
                         'css-loader',
@@ -121,7 +121,7 @@ module.exports = function (env) {
                             {
                                 plugins: [
                                     {
-                                        name: "cleanupIDs",
+                                        name: 'cleanupIDs',
                                         active: false 
                                     }
                                 ]
@@ -139,7 +139,7 @@ module.exports = function (env) {
             }) 
         ],
         output: {
-            publicPath: config.dev.dist.host
+            publicPath: ''
         }
     })
 };
