@@ -1,6 +1,6 @@
-import { ajaxFetch } from "./service/ajax/ajax-helper";
-import { getBaseLogmasterAPIURL } from "./service/api/services";
-import { METHODS } from "./constants/method-constants";
+import { ajaxFetch } from './service/ajax/ajax-helper';
+import { getBaseLogmasterAPIURL } from './service/api/services';
+import { METHODS } from './constants/method-constants';
 import {
   api,
   cookieMainURICname,
@@ -15,29 +15,29 @@ import {
   setMainLogmasterURI,
   setServerName,
   setDatabaseName,
-} from "./core/core-variables";
+} from './core/core-variables';
 import {
   changeIframeURI,
   displayLogmasterUILastStep,
-} from "./service/ui/ui-service";
+} from './service/ui/ui-service';
 import {
   deleteCookie,
   getCookie,
   setCookie,
-} from "./service/utils/cookies-service";
+} from './service/utils/cookies-service';
 
 /**
  * @returns {{initialize: Function, focus: Function, blur: Function, startup; Function, shutdown: Function}}
  */
 geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
-  "use strict";
+  'use strict';
 
   let checkIfUserLoggedInRecently = async () => {
     try {
       const response = await ajaxFetch(
         METHODS.GET,
         getBaseLogmasterAPIURL() +
-          "/organization/user/email" +
+          '/organization/user/email' +
           loggedInUser.name
       );
 
@@ -52,7 +52,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       }
     } catch (error) {
       console.log(
-        "checkIfUserLoggedInRecently: error fetching user from logmaster",
+        'checkIfUserLoggedInRecently: error fetching user from logmaster',
         error
       );
       displayLogmasterUILastStep();
@@ -60,16 +60,16 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   };
   let getGroupOfLoggedInUser = function (groupId) {
     api.call(
-      "Get",
+      'Get',
       {
-        typeName: "Group",
+        typeName: 'Group',
         search: {
           id: groupId,
         },
       },
       function (fetchedGroup) {
         if (fetchedGroup.length === 0) {
-          console.log("no groups found");
+          console.log('no groups found');
           displayLogmasterUILastStep();
           return;
         }
@@ -92,9 +92,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   let getLoggedInUser = function () {
     api.getSession(function (session, server) {
       api.call(
-        "Get",
+        'Get',
         {
-          typeName: "User",
+          typeName: 'User',
           search: {
             name: null, // get all users
           },
@@ -107,7 +107,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
           setDatabaseName(database);
 
           if (loggedInUser && !loggedInUser.companyGroups.length) {
-            console.log("logged in user does not belong to a group");
+            console.log('logged in user does not belong to a group');
             displayLogmasterUILastStep();
             return;
           }
@@ -139,7 +139,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      *        for display to the user.
      */
     initialize: async function (freshApi, freshState, initializeCallback) {
-      setMainLogmasterURI(document.getElementById("mainLogmasterURI").value);
+      setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       setAPI(mainGeotabAPI);
       // MUST call initializeCallback when done any setup
       setFinishCallback(initializeCallback);
@@ -159,10 +159,10 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      * @param {object} freshState - The page state object allows access to URL, page navigation and global group filter.
      */
     focus: function (freshApi, freshState) {
-      setMainLogmasterURI(document.getElementById("mainLogmasterURI").value);
+      setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
       deleteCookie(cookieMainURICname);
       setCookie(cookieMainURICname, mainLogmasterURI);
-      let currentSRC = document.getElementById("logmaster-main-iframe").src;
+      let currentSRC = document.getElementById('logmaster-main-iframe').src;
       if (currentSRC != mainLogmasterURI) {
         changeIframeURI();
       }
