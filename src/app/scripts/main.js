@@ -16,7 +16,7 @@ import {
   setServerName,
   setDatabaseName,
 } from './core/state';
-import { changeIframeURI, displayLogmasterUILastStep } from './ui/iframe';
+import { renderIframe, displayLogmasterUILastStep } from './ui/iframe';
 import { deleteCookie, getCookie, setCookie } from './utils/cookies';
 
 /**
@@ -26,32 +26,54 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   'use strict';
 
   let checkIfUserLoggedInRecently = async () => {
+    const { name: userEmail, companyName } = loggedInUser;
     try {
       const response = await ajaxFetch(
         METHODS.GET,
         getBaseLogmasterAPIURL() +
           '/organization/user/email/' +
-          loggedInUser.name
+          userEmail
       );
 
-      const targetUidFromCookie = getCookie(cookieUidCname);
-      console.log('targetUidFromCookie', targetUidFromCookie);
+      const orgUsers = response.data;
+      const companyNorm = String(companyName || '').trim().toLowerCase();
+      const matchByCompany = orgUsers.find((ou) => {
+        if (!ou.orgId || !ou.orgId.name) return false;
+        const orgNameNorm = String(ou.orgId.name).trim().toLowerCase();
+        if (!companyNorm || !orgNameNorm) return false;
+        return orgNameNorm.includes(companyNorm) || companyNorm.includes(orgNameNorm);
+      });
+      console.log('[Add-In] Geotab company name:', companyName);
+      console.log(
+        '[Add-In] Logmaster company name:',
+        matchByCompany && matchByCompany.orgId && matchByCompany.orgId.name
+      );
+      const selectedOrgUser = matchByCompany || orgUsers[0];
 
-      if (targetUidFromCookie && targetUidFromCookie === response.data._id) {
+      if (!selectedOrgUser) {
+        console.log('[Add-In] no user found');
+        displayLogmasterUILastStep();
+        return;
+      }
+
+      const targetUidFromCookie = getCookie(cookieUidCname);
+
+      if (targetUidFromCookie && targetUidFromCookie === selectedOrgUser._id) {
         displayLogmasterUILastStep();
       } else {
         deleteCookie(cookieUidCname);
-        setCookie(cookieUidCname, response.data._id, 0.008);
+        setCookie(cookieUidCname, selectedOrgUser._id, 0.008);
         displayLogmasterUILastStep();
       }
     } catch (error) {
       console.log(
-        'checkIfUserLoggedInRecently: error fetching user from logmaster',
+        '[Add-In] checkIfUserLoggedInRecently: error fetching user from logmaster',
         error
       );
       displayLogmasterUILastStep();
     }
   };
+
   let getGroupOfLoggedInUser = function (groupId) {
     api.call(
       'Get',
@@ -63,7 +85,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       },
       function (fetchedGroup) {
         if (fetchedGroup.length === 0) {
-          console.log('no groups found');
+          console.log('[Add-In] no groups found');
           displayLogmasterUILastStep();
           return;
         }
@@ -77,12 +99,11 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
             return { id: child.id };
           })
         );
-
-        // Step #3 - Final
         checkIfUserLoggedInRecently();
       }
     );
   };
+
   let getLoggedInUser = function () {
     api.getSession(function (session, server) {
       api.call(
@@ -100,22 +121,24 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
           setServerName(server);
           setDatabaseName(database);
 
-          if (loggedInUser && !loggedInUser.companyGroups.length) {
-            console.log('logged in user does not belong to a group');
-            displayLogmasterUILastStep();
-            return;
-          }
+          checkIfUserLoggedInRecently();
 
-          setCompanyGroups(
-            loggedInUser.companyGroups.map(function (group) {
-              return {
-                id: group.id,
-              };
-            })
-          );
+          // Disabling this as it doesn't seem to be needed.
+          // if (loggedInUser && !loggedInUser.companyGroups.length) {
+          //   console.log('[Add-In] logged in user does not belong to a group');
+          //   displayLogmasterUILastStep();
+          //   return;
+          // }
 
-          // Step #2
-          getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
+          // setCompanyGroups(
+          //   loggedInUser.companyGroups.map(function (group) {
+          //     return {
+          //       id: group.id,
+          //     };
+          //   })
+          // );
+
+          // getGroupOfLoggedInUser(loggedInUser.companyGroups[0].id);
         }
       );
     });
@@ -137,7 +160,6 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setAPI(mainGeotabAPI);
       // MUST call initializeCallback when done any setup
       setFinishCallback(initializeCallback);
-      // Step #1
       getLoggedInUser();
     },
 
@@ -158,7 +180,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setCookie(cookieMainURICname, mainLogmasterURI);
       let currentSRC = document.getElementById('logmaster-main-iframe').src;
       if (currentSRC != mainLogmasterURI) {
-        changeIframeURI();
+        renderIframe();
       }
     },
 

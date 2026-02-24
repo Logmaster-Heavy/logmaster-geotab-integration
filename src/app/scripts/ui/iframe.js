@@ -8,11 +8,11 @@ import { getBaseLogmasterURL } from '../api/endpoints';
 import { getCookie } from '../utils/cookies';
 
 export function displayLogmasterUILastStep() {
-  changeIframeURI();
+  renderIframe();
   finishCallback();
 }
 
-export function changeIframeURI() {
+export function renderIframe() {
   const uriSplitted = mainLogmasterURI.split('/');
   let geotabLogmasterURL = `${getBaseLogmasterURL()}/geotab`;
 
