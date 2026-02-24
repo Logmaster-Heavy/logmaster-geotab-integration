@@ -1,11 +1,7 @@
 {
   "hosting": {
     "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "headers": [
       {
         "source": "/images/**",
@@ -16,7 +12,7 @@
           },
           {
             "key": "Cache-Control",
-             "value": "no-cache"
+            "value": "no-cache"
           }
         ]
       },
@@ -29,7 +25,7 @@
           },
           {
             "key": "Cache-Control",
-             "value": "no-cache"
+            "value": "no-store"
           }
         ]
       },
@@ -42,7 +38,7 @@
           },
           {
             "key": "Cache-Control",
-             "value": "no-cache"
+            "value": "no-cache"
           }
         ]
       }
