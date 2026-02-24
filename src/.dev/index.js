@@ -27,11 +27,6 @@ global.geotab = {
 global.environment = 'local';
 global.baseLogmasterURL = 'http://localhost:8080';
 global.baseAPIURL = 'http://localhost:3005';
-global.mainPartnerUID = '6j0VG2eTE6QIPhtsQyu5dihAiA42';
-global.mainBusinessParentUID = 'XeqTkJ5VUnWFYWK7bKWXeQ58yLF3';
-global.contractDurationMongoId = '62bbcada9b8c495a93347323';
-global.billingPeriodMongoId = '62bbcada9b8c495a93347319';
-global.businessParentOfDriverMongoId = '624f0935f07b702b6d33e9a6';
 
 
 require('../app/scripts/main');

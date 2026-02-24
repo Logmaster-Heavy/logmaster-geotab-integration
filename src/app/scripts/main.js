@@ -1,6 +1,6 @@
-import { ajaxFetch } from './service/ajax/ajax-helper';
-import { getBaseLogmasterAPIURL } from './service/api/services';
-import { METHODS } from './constants/method-constants';
+import { ajaxFetch } from './api/fetch';
+import { getBaseLogmasterAPIURL } from './api/endpoints';
+import { METHODS } from './constants/http-methods';
 import {
   api,
   cookieMainURICname,
@@ -15,16 +15,9 @@ import {
   setMainLogmasterURI,
   setServerName,
   setDatabaseName,
-} from './core/core-variables';
-import {
-  changeIframeURI,
-  displayLogmasterUILastStep,
-} from './service/ui/ui-service';
-import {
-  deleteCookie,
-  getCookie,
-  setCookie,
-} from './service/utils/cookies-service';
+} from './core/state';
+import { changeIframeURI, displayLogmasterUILastStep } from './ui/iframe';
+import { deleteCookie, getCookie, setCookie } from './utils/cookies';
 
 /**
  * @returns {{initialize: Function, focus: Function, blur: Function, startup; Function, shutdown: Function}}
@@ -37,11 +30,12 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       const response = await ajaxFetch(
         METHODS.GET,
         getBaseLogmasterAPIURL() +
-          '/organization/user/email' +
+          '/organization/user/email/' +
           loggedInUser.name
       );
 
       const targetUidFromCookie = getCookie(cookieUidCname);
+      console.log('targetUidFromCookie', targetUidFromCookie);
 
       if (targetUidFromCookie && targetUidFromCookie === response.data._id) {
         displayLogmasterUILastStep();

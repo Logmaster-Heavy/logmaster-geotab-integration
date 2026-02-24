@@ -1,7 +1,7 @@
 const path = require('path');
 const RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { merge } = require('webpack-merge');
@@ -19,14 +19,6 @@ const ESLintPlugin = require('eslint-webpack-plugin');
  */
 const transform = function (content, path) {
     let config = JSON.parse(content);
-    // let host = config.dev.dist.host;
-    // let len = config.items.length;
-    // // Appending the host to all item's url and icon
-    // for(let i=0;i<len;i++){
-    //     config.items[i].url = host + config.items[i].url;
-    //     config.items[i].icon = host + config.items[i].icon; 
-    // }
-
     delete config['dev'];
     let response = JSON.stringify(config, null, 2);
     // Returned string is written to file
@@ -36,8 +28,6 @@ const transform = function (content, path) {
 const entry_point = function (env) {
     if(env.CORE_ENV == 'dev'){
         return './src/.sandbox/index.js';
-    } else if(env.CORE_ENV == 'staging'){
-        return './src/.staging/index.js';
     }
     return './src/app/index.js';
 }
@@ -122,7 +112,7 @@ module.exports = function (env) {
                                 plugins: [
                                     {
                                         name: 'cleanupIDs',
-                                        active: false 
+                                        active: false
                                     }
                                 ]
                             }
