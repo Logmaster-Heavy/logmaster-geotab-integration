@@ -47,7 +47,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       );
       const selectedOrgUser = matchByCompany || orgUsers[0];
 
-      console.log('[Add-In] Logmaster org user:', selectedOrgUser && selectedOrgUser._id || 'no user found');
+      console.log('[Add-In] Logmaster organization user:', selectedOrgUser && selectedOrgUser._id || 'no user found');
       if (selectedOrgUser) {
         setSelectedOrgUser(selectedOrgUser);
       }
