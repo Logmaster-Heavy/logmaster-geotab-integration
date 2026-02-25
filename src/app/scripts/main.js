@@ -34,9 +34,10 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       const orgUsers = response.data;
       const companyNorm = String(companyName || '').trim().toLowerCase();
       const matchByCompany = orgUsers.find((ou) => {
-        if (!ou.orgId || !ou.orgId.name) return false;
-        const orgNameNorm = String(ou.orgId.name).trim().toLowerCase();
-        if (!companyNorm || !orgNameNorm) return false;
+        if (!ou.orgId || ou.orgId.type !== 'business') return false;
+        const orgName = ou.orgId.name;
+        if (!orgName || !companyNorm) return false;
+        const orgNameNorm = String(orgName).trim().toLowerCase();
         return orgNameNorm.includes(companyNorm) || companyNorm.includes(orgNameNorm);
       });
       console.log('[Add-In] Geotab company name:', companyName);
