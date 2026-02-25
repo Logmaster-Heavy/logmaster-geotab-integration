@@ -3,10 +3,6 @@ export const baseAPIURL = global.baseAPIURL;
 
 export const logmasterK = '41Od9TB4o02AVy';
 
-export const cookieUidCname = 'external-login-uid';
-
-export const cookieMainURICname = 'geotab-portal-v2-uri';
-
 export let mainLogmasterURI;
 export function setMainLogmasterURI(mainLogmasterURIValue) {
   mainLogmasterURI = mainLogmasterURIValue;
@@ -32,17 +28,12 @@ export function setDatabaseName(databaseNameValue) {
   databaseName = databaseNameValue;
 }
 
-export let companyGroups;
-export function setCompanyGroups(companyGroupsValue) {
-  companyGroups = companyGroupsValue;
-}
-
-export let childrenGroups;
-export function setChildrenGroups(childrenGroupsValue) {
-  childrenGroups = childrenGroupsValue;
-}
-
 export let finishCallback;
 export function setFinishCallback(finishCallbackValue) {
   finishCallback = finishCallbackValue;
+}
+
+export let selectedOrgUser;
+export function setSelectedOrgUser(selectedOrgUserValue) {
+  selectedOrgUser = selectedOrgUserValue;
 }

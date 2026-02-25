@@ -1,11 +1,10 @@
 import {
-  cookieUidCname,
   finishCallback,
   logmasterK,
   mainLogmasterURI,
+  selectedOrgUser,
 } from '../core/state';
 import { getBaseLogmasterURL } from '../api/endpoints';
-import { getCookie } from '../utils/cookies';
 
 export function displayLogmasterUILastStep() {
   renderIframe();
@@ -23,8 +22,7 @@ export function renderIframe() {
       geotabLogmasterURL += `/${uriSplitted.shift()}`;
     }
   }
-  const targetUidFromCookie = getCookie(cookieUidCname);
-  geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(targetUidFromCookie, logmasterK).toString())}`;
+  geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(selectedOrgUser && selectedOrgUser._id || '', logmasterK).toString())}`;
 
   uriSplitted.forEach((value) => {
     geotabLogmasterURL += `/${value}`;
