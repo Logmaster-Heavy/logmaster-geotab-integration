@@ -1,6 +1,5 @@
 import {
   finishCallback,
-  logmasterK,
   mainLogmasterURI,
   selectedOrgUser,
 } from '../core/state';
@@ -22,7 +21,7 @@ export function renderIframe() {
       geotabLogmasterURL += `/${uriSplitted.shift()}`;
     }
   }
-  geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(selectedOrgUser && selectedOrgUser._id || '', logmasterK).toString())}`;
+  geotabLogmasterURL += `/${selectedOrgUser && selectedOrgUser._id || ''}`;
 
   uriSplitted.forEach((value) => {
     geotabLogmasterURL += `/${value}`;
