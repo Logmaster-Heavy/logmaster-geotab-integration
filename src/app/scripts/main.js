@@ -11,6 +11,7 @@ import {
   setServerName,
   setDatabaseName,
   setSelectedOrgUser,
+  finishCallback,
 } from './core/state';
 import { renderIframe, displayLogmasterUILastStep } from './ui/iframe';
 import { showConsentModal } from './ui/consentModal';
@@ -31,6 +32,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       if (users && users.length > 0) {
         displayLogmasterUILastStep();
       } else {
+        finishCallback();
         if (!canUserAddServiceAccount(loggedInUser)) {
           showErrorMessage(
             () => window.location.reload(),
@@ -51,6 +53,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
                 })
                 .catch((err) => {
                   console.log('[Add-In] postGeotabConsent error:', err);
+                  finishCallback();
                   showErrorMessage(() => window.location.reload(), 'Unable to create service account. Please try again or contact Logmaster support.');
                   reject(err);
                 });
@@ -90,6 +93,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
         '[Add-In] checkIfUserLoggedInRecently: error fetching user from logmaster',
         error
       );
+      finishCallback();
       showErrorMessage(() => window.location.reload());
     }
   };
@@ -99,6 +103,8 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       getUsers(api, function (err, users) {
         if (err) {
           console.log('[Add-In] getUsers error:', err);
+          finishCallback();
+          showErrorMessage(() => window.location.reload(), 'Failed to load users. Please try again or contact Logmaster support.');
           return;
         }
         const { userName, database } = session;
