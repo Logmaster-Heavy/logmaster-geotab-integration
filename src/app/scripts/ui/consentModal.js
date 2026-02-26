@@ -1,13 +1,20 @@
 const MODAL_ID = 'logmaster-service-account-consent-modal';
+const IFRAME_ID = 'logmaster-main-iframe';
 
 /**
  * Shows the service account consent modal. On submit, invokes onProceed with the checkbox state.
+ * Hides the main iframe while the modal is shown.
  *
  * @param {function} onProceed - Called when the user submits. Receives (consentGiven: boolean).
  */
 export function showConsentModal(onProceed) {
   if (document.getElementById(MODAL_ID)) {
     return;
+  }
+
+  const iframe = document.getElementById(IFRAME_ID);
+  if (iframe) {
+    iframe.style.display = 'none';
   }
 
   const overlay = document.createElement('div');
@@ -18,14 +25,31 @@ export function showConsentModal(onProceed) {
       'display:flex;align-items:center;justify-content:center;z-index:10000;'
   );
 
+  const cleanup = () => {
+    const el = document.getElementById(IFRAME_ID);
+    if (el) el.style.display = '';
+    overlay.remove();
+  };
+
   const panel = document.createElement('div');
   panel.setAttribute(
     'style',
-    'background:#fff;border-radius:8px;padding:24px;max-width:400px;box-shadow:0 4px 20px rgba(0,0,0,0.15);'
+    'position:relative;background:#fff;border-radius:8px;padding:24px;max-width:400px;box-shadow:0 4px 20px rgba(0,0,0,0.15);'
   );
 
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.textContent = '×';
+  closeBtn.setAttribute(
+    'style',
+    'position:absolute;top:12px;right:12px;width:28px;height:28px;padding:0;border:none;background:transparent;' +
+      'color:#666;font-size:24px;line-height:1;cursor:pointer;border-radius:4px;'
+  );
+  closeBtn.addEventListener('click', cleanup);
+
   const paragraph = document.createElement('p');
-  paragraph.setAttribute('style', 'margin:0 0 16px;color:#333;line-height:1.5;');
+  paragraph.setAttribute('style', 'margin:0 36px 16px 0;color:#333;line-height:1.5;');
   paragraph.textContent =
     'The Logmaster add-in requires a Logmaster service account to sync data with the Logmaster platform.';
 
@@ -65,13 +89,14 @@ export function showConsentModal(onProceed) {
     submitBtn.style.cursor = 'wait';
     try {
       await Promise.resolve(onProceed(checkbox.checked));
-      overlay.remove();
+      cleanup();
     } catch (err) {
-      overlay.remove();
+      cleanup();
       throw err;
     }
   });
 
+  panel.appendChild(closeBtn);
   panel.appendChild(paragraph);
   panel.appendChild(label);
   panel.appendChild(submitBtn);
@@ -79,4 +104,17 @@ export function showConsentModal(onProceed) {
 
   const app = document.getElementById('app') || document.body;
   app.appendChild(overlay);
+}
+
+/**
+ * Dismisses the consent modal if it is open (e.g. when navigating away).
+ * Restores the iframe visibility.
+ */
+export function dismissConsentModal() {
+  const overlay = document.getElementById(MODAL_ID);
+  if (overlay) {
+    const el = document.getElementById(IFRAME_ID);
+    if (el) el.style.display = '';
+    overlay.remove();
+  }
 }

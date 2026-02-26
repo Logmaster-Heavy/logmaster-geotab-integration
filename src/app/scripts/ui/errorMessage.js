@@ -53,3 +53,12 @@ export function showErrorMessage(onDismiss, message) {
   const app = document.getElementById('app') || document.body;
   app.appendChild(overlay);
 }
+
+/**
+ * Dismisses the error overlay if it is open (e.g. when navigating away).
+ * Does not call onDismiss.
+ */
+export function dismissErrorMessage() {
+  const overlay = document.getElementById(ERROR_OVERLAY_ID);
+  if (overlay) overlay.remove();
+}

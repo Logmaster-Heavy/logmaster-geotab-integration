@@ -1,26 +1,39 @@
 /**
- * Geotab API call wrappers. Each function accepts the Geotab API object and a callback.
+ * Geotab API call wrappers. Each function accepts the Geotab API object and returns a Promise.
  *
  * @param {object} geotabApi - The Geotab API object for making calls.
- * @param {function} callback - Node-style (error, result) callback.
  */
+
+/**
+ * Gets the current session and server from Geotab.
+ *
+ * @param {object} geotabApi - The Geotab API object.
+ * @returns {Promise<{session: object, server: string}>}
+ */
+export function getSession(geotabApi) {
+  return new Promise((resolve) => {
+    geotabApi.getSession((session, server) => resolve({ session, server }));
+  });
+}
 
 /**
  * Gets all users in the current database.
  *
  * @param {object} geotabApi - The Geotab API object.
- * @param {function} callback - (error, users) - users is an array of User entities.
+ * @returns {Promise<object[]>} Array of User entities.
  */
-export function getUsers(geotabApi, callback) {
-  geotabApi.call(
-    'Get',
-    {
-      typeName: 'User',
-      search: { name: null },
-    },
-    (users) => callback(null, users || []),
-    (error) => callback(error, [])
-  );
+export function getUsers(geotabApi) {
+  return new Promise((resolve, reject) => {
+    geotabApi.call(
+      'Get',
+      {
+        typeName: 'User',
+        search: { name: null },
+      },
+      (users) => resolve(users || []),
+      (error) => reject(error)
+    );
+  });
 }
 
 const SERVICE_ACCOUNT_NAME_PATTERN = 'service.account@logmaster';
@@ -46,19 +59,21 @@ export function canUserAddServiceAccount(user) {
  * Gets service account users in the current database (by name pattern service.account@logmaster*).
  *
  * @param {object} geotabApi - The Geotab API object.
- * @param {function} callback - (error, users) - users is an array of service account User entities.
+ * @returns {Promise<object[]>} Array of service account User entities.
  */
-export function getServiceAccounts(geotabApi, callback) {
-  geotabApi.call(
-    'Get',
-    {
-      typeName: 'User',
-      search: {
-        authenticationTypes: ['ServiceAccount'],
-        name: SERVICE_ACCOUNT_NAME_PATTERN,
+export function getServiceAccounts(geotabApi) {
+  return new Promise((resolve, reject) => {
+    geotabApi.call(
+      'Get',
+      {
+        typeName: 'User',
+        search: {
+          authenticationTypes: ['ServiceAccount'],
+          name: SERVICE_ACCOUNT_NAME_PATTERN,
+        },
       },
-    },
-    (users) => callback(null, users || []),
-    (error) => callback(error, [])
-  );
+      (users) => resolve(users || []),
+      (error) => reject(error)
+    );
+  });
 }
