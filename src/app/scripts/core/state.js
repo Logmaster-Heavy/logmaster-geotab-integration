@@ -1,8 +1,6 @@
 export const baseLogmasterURL = global.baseLogmasterURL;
 export const baseAPIURL = global.baseAPIURL;
 
-export const logmasterK = '41Od9TB4o02AVy';
-
 export let mainLogmasterURI;
 export function setMainLogmasterURI(mainLogmasterURIValue) {
   mainLogmasterURI = mainLogmasterURIValue;

@@ -1,6 +1,5 @@
-import { ajaxFetch } from './api/fetch';
-import { getBaseLogmasterAPIURL } from './api/endpoints';
-import { METHODS } from './constants/http-methods';
+import { getOrgUsersByEmail, postGeotabConsent } from './api/logmaster';
+import { canUserAddServiceAccount, getServiceAccounts, getUsers } from './api/geotab';
 import {
   api,
   loggedInUser,
@@ -14,6 +13,8 @@ import {
   setSelectedOrgUser,
 } from './core/state';
 import { renderIframe, displayLogmasterUILastStep } from './ui/iframe';
+import { showConsentModal } from './ui/consentModal';
+import { showErrorMessage } from './ui/errorMessage';
 
 /**
  * @returns {{initialize: Function, focus: Function, blur: Function, startup; Function, shutdown: Function}}
@@ -21,16 +22,49 @@ import { renderIframe, displayLogmasterUILastStep } from './ui/iframe';
 geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   'use strict';
 
+  let checkServiceAccountAndConsent = () => {
+    getServiceAccounts(api, (err, users) => {
+      if (err) {
+        console.log('[Add-In] getServiceAccounts error, showing consent modal:', err);
+      }
+      
+      if (users && users.length > 0) {
+        displayLogmasterUILastStep();
+      } else {
+        if (!canUserAddServiceAccount(loggedInUser)) {
+          showErrorMessage(
+            () => window.location.reload(),
+            'You need an Administrator or Supervisor to consent to creation of a service account. Please ask a supervisor to open this add-in.'
+          );
+          return;
+        }
+        showConsentModal(() => {
+          const userGroups = loggedInUser.companyGroups || [];
+          const firstGroup = userGroups[0];
+          const groupId = firstGroup && (firstGroup.id || firstGroup);
+          return new Promise((resolve, reject) => {
+            api.getSession((credentials, server) => {
+              postGeotabConsent(credentials, server, groupId)
+                .then(() => {
+                  displayLogmasterUILastStep();
+                  resolve();
+                })
+                .catch((err) => {
+                  console.log('[Add-In] postGeotabConsent error:', err);
+                  showErrorMessage(() => window.location.reload(), 'Unable to create service account. Please try again or contact Logmaster support.');
+                  reject(err);
+                });
+            });
+          });
+        });
+      }
+    });
+  };
+
   let checkIfUserLoggedInRecently = async () => {
     const { name: userEmail, companyName } = loggedInUser;
     try {
-      const response = await ajaxFetch(
-        METHODS.GET,
-        getBaseLogmasterAPIURL() +
-          '/organization/user/email/' +
-          userEmail
-      );
-
+      const response = await getOrgUsersByEmail(userEmail);
       const orgUsers = response.data;
       const companyNorm = String(companyName || '').trim().toLowerCase();
       const matchByCompany = orgUsers.find((ou) => {
@@ -51,35 +85,30 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       if (selectedOrgUser) {
         setSelectedOrgUser(selectedOrgUser);
       }
-      displayLogmasterUILastStep();
+      checkServiceAccountAndConsent();
     } catch (error) {
       console.log(
         '[Add-In] checkIfUserLoggedInRecently: error fetching user from logmaster',
         error
       );
-      displayLogmasterUILastStep();
+      showErrorMessage(() => window.location.reload());
     }
   };
 
   let getLoggedInUser = function () {
     api.getSession(function (session, server) {
-      api.call(
-        'Get',
-        {
-          typeName: 'User',
-          search: {
-            name: null, // get all users
-          },
-        },
-        async function (users) {
-          const { userName, database } = session;
-          const loggedInUser = users.find((user) => user.name === userName);
-          setLoggedInUser(loggedInUser);
-          setServerName(server);
-          setDatabaseName(database);
-          checkIfUserLoggedInRecently();
+      getUsers(api, function (err, users) {
+        if (err) {
+          console.log('[Add-In] getUsers error:', err);
+          return;
         }
-      );
+        const { userName, database } = session;
+        const loggedInUser = users.find((user) => user.name === userName);
+        setLoggedInUser(loggedInUser);
+        setServerName(server);
+        setDatabaseName(database);
+        checkIfUserLoggedInRecently();
+      });
     });
   };
 

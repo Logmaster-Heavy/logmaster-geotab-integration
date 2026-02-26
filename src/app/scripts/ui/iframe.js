@@ -1,10 +1,10 @@
 import {
+  baseLogmasterURL,
+  databaseName,
   finishCallback,
-  logmasterK,
   mainLogmasterURI,
   selectedOrgUser,
 } from '../core/state';
-import { getBaseLogmasterURL } from '../api/endpoints';
 
 export function displayLogmasterUILastStep() {
   renderIframe();
@@ -13,7 +13,7 @@ export function displayLogmasterUILastStep() {
 
 export function renderIframe() {
   const uriSplitted = mainLogmasterURI.split('/');
-  let geotabLogmasterURL = `${getBaseLogmasterURL()}/geotab`;
+  let geotabLogmasterURL = `${baseLogmasterURL}/geotab`;
 
   if (uriSplitted.length > 0) {
     uriSplitted.shift();
@@ -22,7 +22,8 @@ export function renderIframe() {
       geotabLogmasterURL += `/${uriSplitted.shift()}`;
     }
   }
-  geotabLogmasterURL += `/${encodeURIComponent(CryptoJS.AES.encrypt(selectedOrgUser && selectedOrgUser._id || '', logmasterK).toString())}`;
+  const messagePayload = `${selectedOrgUser && selectedOrgUser._id || ''}`;
+  geotabLogmasterURL += `/${messagePayload}`;
 
   uriSplitted.forEach((value) => {
     geotabLogmasterURL += `/${value}`;
