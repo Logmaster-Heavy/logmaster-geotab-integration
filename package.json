@@ -80,5 +80,8 @@
   "mocha": {
     "timeout": 10000,
     "reporter": "nyan"
+  },
+  "dependencies": {
+    "axios": "^1.13.5"
   }
 }
