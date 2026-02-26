@@ -1,5 +1,5 @@
 import { getOrgUsersByEmail, postGeotabConsent } from './api/logmaster';
-import { canUserAddServiceAccount, getServiceAccounts, getUsers } from './api/geotab';
+import { canUserAddServiceAccount, getSession, getServiceAccounts, getUsers } from './api/geotab';
 import {
   api,
   loggedInUser,
@@ -14,8 +14,8 @@ import {
   finishCallback,
 } from './core/state';
 import { renderIframe, displayLogmasterUILastStep } from './ui/iframe';
-import { showConsentModal } from './ui/consentModal';
-import { showErrorMessage } from './ui/errorMessage';
+import { dismissConsentModal, showConsentModal } from './ui/consentModal';
+import { dismissErrorMessage, showErrorMessage } from './ui/errorMessage';
 
 /**
  * @returns {{initialize: Function, focus: Function, blur: Function, startup; Function, shutdown: Function}}
@@ -23,43 +23,42 @@ import { showErrorMessage } from './ui/errorMessage';
 geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
   'use strict';
 
-  let checkServiceAccountAndConsent = () => {
-    getServiceAccounts(api, (err, users) => {
-      if (err) {
-        console.log('[Add-In] getServiceAccounts error, showing consent modal:', err);
-      }
-      
-      if (users && users.length > 0) {
+  let checkServiceAccountAndConsent = async (skipInitialCallback = false) => {
+    let users;
+    try {
+      users = await getServiceAccounts(api);
+    } catch (err) {
+      console.log('[Add-In] getServiceAccounts error, showing consent modal:', err);
+      users = [];
+    }
+
+    if (users && users.length > 0) {
+      displayLogmasterUILastStep();
+      return;
+    }
+
+    if (!skipInitialCallback) finishCallback();
+    if (!canUserAddServiceAccount(loggedInUser)) {
+      showErrorMessage(
+        () => window.location.reload(),
+        'You need an Administrator or Supervisor to consent to creation of a service account. Please ask a supervisor to open this add-in.'
+      );
+      return;
+    }
+
+    showConsentModal(async () => {
+      const userGroups = loggedInUser.companyGroups || [];
+      const firstGroup = userGroups[0];
+      const groupId = firstGroup && (firstGroup.id || firstGroup);
+      const { session: credentials, server } = await getSession(api);
+      try {
+        await postGeotabConsent(credentials, server, groupId);
         displayLogmasterUILastStep();
-      } else {
-        finishCallback();
-        if (!canUserAddServiceAccount(loggedInUser)) {
-          showErrorMessage(
-            () => window.location.reload(),
-            'You need an Administrator or Supervisor to consent to creation of a service account. Please ask a supervisor to open this add-in.'
-          );
-          return;
-        }
-        showConsentModal(() => {
-          const userGroups = loggedInUser.companyGroups || [];
-          const firstGroup = userGroups[0];
-          const groupId = firstGroup && (firstGroup.id || firstGroup);
-          return new Promise((resolve, reject) => {
-            api.getSession((credentials, server) => {
-              postGeotabConsent(credentials, server, groupId)
-                .then(() => {
-                  displayLogmasterUILastStep();
-                  resolve();
-                })
-                .catch((err) => {
-                  console.log('[Add-In] postGeotabConsent error:', err);
-                  finishCallback();
-                  showErrorMessage(() => window.location.reload(), 'Unable to create service account. Please try again or contact Logmaster support.');
-                  reject(err);
-                });
-            });
-          });
-        });
+      } catch (err) {
+        console.log('[Add-In] postGeotabConsent error:', err);
+        if (!skipInitialCallback) finishCallback();
+        showErrorMessage(() => window.location.reload(), 'Unable to create service account. Please try again or contact Logmaster support.');
+        throw err;
       }
     });
   };
@@ -88,7 +87,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       if (selectedOrgUser) {
         setSelectedOrgUser(selectedOrgUser);
       }
-      checkServiceAccountAndConsent();
+      await checkServiceAccountAndConsent();
     } catch (error) {
       console.log(
         '[Add-In] checkIfUserLoggedInRecently: error fetching user from logmaster',
@@ -99,23 +98,21 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
     }
   };
 
-  let getLoggedInUser = function () {
-    api.getSession(function (session, server) {
-      getUsers(api, function (err, users) {
-        if (err) {
-          console.log('[Add-In] getUsers error:', err);
-          finishCallback();
-          showErrorMessage(() => window.location.reload(), 'Failed to load users. Please try again or contact Logmaster support.');
-          return;
-        }
-        const { userName, database } = session;
-        const loggedInUser = users.find((user) => user.name === userName);
-        setLoggedInUser(loggedInUser);
-        setServerName(server);
-        setDatabaseName(database);
-        checkIfUserLoggedInRecently();
-      });
-    });
+  let getLoggedInUser = async () => {
+    try {
+      const { session, server } = await getSession(api);
+      const users = await getUsers(api);
+      const { userName, database } = session;
+      const user = users.find((u) => u.name === userName);
+      setLoggedInUser(user);
+      setServerName(server);
+      setDatabaseName(database);
+      await checkIfUserLoggedInRecently();
+    } catch (err) {
+      console.log('[Add-In] getUsers error:', err);
+      finishCallback();
+      showErrorMessage(() => window.location.reload(), 'Failed to load users. Please try again or contact Logmaster support.');
+    }
   };
 
   return {
@@ -134,7 +131,7 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
       setAPI(mainGeotabAPI);
       // MUST call initializeCallback when done any setup
       setFinishCallback(initializeCallback);
-      getLoggedInUser();
+      await getLoggedInUser();
     },
 
     /**
@@ -148,12 +145,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      * @param {object} freshApi - The GeotabApi object for making calls to MyGeotab.
      * @param {object} freshState - The page state object allows access to URL, page navigation and global group filter.
      */
-    focus: function (freshApi, freshState) {
+    focus: async function (freshApi, freshState) {
       setMainLogmasterURI(document.getElementById('mainLogmasterURI').value);
-      let currentSRC = document.getElementById('logmaster-main-iframe').src;
-      if (currentSRC != mainLogmasterURI) {
-        renderIframe();
-      }
+      await checkServiceAccountAndConsent(true);
     },
 
     /**
@@ -164,6 +158,9 @@ geotab.addin.logmasterEwd2 = function (mainGeotabAPI, state) {
      * @param {object} freshApi - The GeotabApi object for making calls to MyGeotab.
      * @param {object} freshState - The page state object allows access to URL, page navigation and global group filter.
      */
-    blur: function () {},
+    blur: function () {
+      dismissConsentModal();
+      dismissErrorMessage();
+    },
   };
 };

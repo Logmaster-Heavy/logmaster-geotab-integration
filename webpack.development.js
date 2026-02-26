@@ -8,6 +8,13 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = merge(common, {
     mode: 'development',
+    watchOptions: {
+        ignored: [
+            path.resolve(__dirname, 'node_modules'),
+            path.resolve(__dirname, 'dist'),
+        ],
+        poll: 1000,
+    },
     entry: './src/.dev/index.js',
     module: {
         rules: [
@@ -61,7 +68,10 @@ module.exports = merge(common, {
     ],
     devServer: {
         static: {
-            directory: path.join(__dirname)
+            directory: path.join(__dirname),
+            watch: {
+                ignored: ['**/node_modules/**', '**/dist/**'],
+            },
         },
         devMiddleware: {
             index: 'logmasterEwd2.html'
